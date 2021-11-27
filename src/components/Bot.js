@@ -33,7 +33,7 @@ const Bot = () => {
               <div>
                 <span className="replyNote">My usual reply time</span>
                 <br />
-                <span className="replyTome">🕓 Under 5 mins</span>
+                <span className="replyTome">🕓 Under 1 min</span>
               </div>
               <button onClick={() => setActive(true)}>Get Started</button>
             </StyledDiv>

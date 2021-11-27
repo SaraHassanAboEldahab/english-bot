@@ -18,10 +18,13 @@ const Chat = () => {
 
   useEffect(() => {
     socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
-      const { result, corrections } = JSON.parse(
-        checkResult.replace(/\'/g, '"').replace(/None/g, "null")
-      );
-      if (corrections?.length === 0) {
+      console.log(msg, message);
+      const { result, corrections } = checkResult;
+      if (
+        corrections?.length === 0 ||
+        message.toLowerCase().replace(/\ /g, "") ==
+          result?.toLocaleLowerCase().replace(/\ /g, "")
+      ) {
         setMessages([
           ...messages,
           { from: "English BOT", text: "u r right ✅ " },
