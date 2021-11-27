@@ -1,30 +1,83 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import dataContext from "../contexts/dataContext";
 import styled from "styled-components";
 import send from "../images/send.png";
+import { io } from "socket.io-client";
+import botIcon from "../images/bot-icon.png";
+
+const socket = io("wss://english-bot-test.herokuapp.com/");
 
 const Chat = () => {
-  const [messages, setMessages] = useState([{ id: "456", text: "👋👋" }]);
-  const [msg, setMsg] = useState("");
-  console.log(messages);
-  const sendMsg = () => {
-    setMessages([...messages, { id: "123", text: msg }]);
-    setMsg("");
+  const { message } = useContext(dataContext);
+  const [messages, setMessages] = useState([
+    { from: "English BOT", text: "👋🏻👋🏻" },
+    { from: "English BOT", text: message?.text },
+  ]);
+
+  const [msg, setMsg] = useState({ text: "" });
+
+  useEffect(() => {
+    socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
+      const { result, corrections } = JSON.parse(
+        checkResult.replace(/\'/g, '"').replace(/None/g, "null")
+      );
+      if (corrections?.length === 0) {
+        setMessages([
+          ...messages,
+          { from: "English BOT", text: "u r right ✅ " },
+        ]);
+        return;
+      }
+      setMessages([
+        ...messages,
+        {
+          from: "English BOT",
+          text: (
+            <StyledCorrectDiv>
+              <div>
+                you are too close , the correct answer is
+                <h4>{result}</h4>
+              </div>
+            </StyledCorrectDiv>
+          ),
+        },
+      ]);
+    });
+  }, [messages]);
+
+  const sendMsg = (e) => {
+    e.preventDefault();
+    setMessages([...messages, { from: "Me", text: msg.text }]);
+    socket.emit("checkGrammer", msg);
+    setMsg({ text: "" });
   };
+
   return (
     <>
       <StyledMessages>
-        {messages.map((msg) => (
-          <span key={msg.id}>{msg.text}</span>
+        {messages.map(({ from, text }, index) => (
+          <>
+            {from === "English BOT" ? (
+              <StyledBotDiv key={index}>
+                <img src={botIcon} alt=" " />
+                <span>{text}</span>
+              </StyledBotDiv>
+            ) : (
+              <StyledMeDiv key={index}>
+                <span>{text}</span>
+              </StyledMeDiv>
+            )}
+          </>
         ))}
       </StyledMessages>
-      <StyledDiv>
+      <StyledDiv onSubmit={(e) => sendMsg(e)}>
         <input
-          value={msg}
-          onChange={(e) => setMsg(e.target.value)}
+          value={msg.text}
+          onChange={(e) => setMsg({ text: e.target.value })}
           type="text"
           placeholder="send a message..."
         />
-        <button onClick={sendMsg}>
+        <button type="submit">
           <img src={send} alt="" />
         </button>
       </StyledDiv>
@@ -34,7 +87,7 @@ const Chat = () => {
 
 export default Chat;
 
-const StyledDiv = styled.div`
+const StyledDiv = styled.form`
   display: flex;
   width: 100%;
   border-top: 1px solid rgb(230, 230, 230);
@@ -69,11 +122,46 @@ const StyledMessages = styled.div`
   padding: 15px 20px;
   span {
     width: fit-content;
-    padding: 10px;
-    background-color: beige;
+    height: fit-content;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
     margin-bottom: 10px;
+  }
+`;
+
+const StyledBotDiv = styled.div`
+  display: flex;
+  align-items: center;
+  span {
+    background-color: #717171;
+    color: white;
+    padding: 10px;
+  }
+  img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+  }
+`;
+
+const StyledMeDiv = styled.div`
+  margin-left: auto;
+  span {
+    display: block;
+    background-color: #0073a5;
+    color: white;
+    margin-left: 10px;
+    padding: 10px;
+  }
+`;
+
+const StyledCorrectDiv = styled.div`
+  display: flex;
+  align-items: center;
+  h4 {
+    display: inline-block;
+    color: #74eaf4;
+    margin: 0px 0px 0px 10px;
   }
 `;

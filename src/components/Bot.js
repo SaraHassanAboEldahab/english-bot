@@ -1,14 +1,11 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import dataContext from "../contexts/dataContext";
 import englishBot from "../images/english.png";
 import leftArrow from "../images/left-arrow.png";
 import Chat from "./Chat";
 
 const Bot = () => {
   const [active, setActive] = useState(false);
-  const { bot } = useContext(dataContext);
-
   return (
     <>
       <Header>
@@ -23,27 +20,23 @@ const Bot = () => {
 
           <StyledH1>
             <StyledBotImg src={englishBot} alt="" />
-            <span> Hello {bot && bot.name}</span>
+            <span> English Bot </span>
           </StyledH1>
-          <p>Any sentence can be translated with the help of our BOT.</p>
+          <p>I can help you to improve your english.</p>
         </Container>
       </Header>
       <Container>
         <Content>
           {!active && (
-            <StyledDefault>
+            <StyledDiv>
               <h3>Get Started</h3>
-              <StyledDiv>
-                <div>
-                  <span className="replyNote">Our usual reply time</span>
-                  <br />
-                  <span className="replyTome">🕓 Under 5 mins</span>
-                </div>
-              </StyledDiv>
-              <button className="sendBtn" onClick={() => setActive(true)}>
-                Send us a message
-              </button>
-            </StyledDefault>
+              <div>
+                <span className="replyNote">My usual reply time</span>
+                <br />
+                <span className="replyTome">🕓 Under 5 mins</span>
+              </div>
+              <button onClick={() => setActive(true)}>Get Started</button>
+            </StyledDiv>
           )}
           {active && <Chat />}
         </Content>
@@ -72,7 +65,7 @@ const StyledBotImg = styled.img`
 `;
 const Header = styled.div`
   color: white;
-  background-color: #0a5a86;
+  background-color: #14243d;
   padding: 40px 20px 100px 20px;
   p {
     font-size: 20px;
@@ -96,7 +89,7 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
-const StyledDefault = styled.div`
+const StyledDiv = styled.div`
   padding: 15px 20px;
   .replyNote {
     color: gray;
@@ -105,9 +98,9 @@ const StyledDefault = styled.div`
   .replyTome {
     font-weight: bold;
   }
-  .sendBtn {
+  button {
     border: none;
-    background-color: black;
+    background-color: #763c1a;
     color: white;
     padding: 15px 20px;
     border-radius: 30px;
@@ -116,17 +109,9 @@ const StyledDefault = styled.div`
     cursor: pointer;
     width: 200px;
     margin: 30px 0px 40px 0px;
+    transition: background-color 0.1s ease-in;
     &:hover {
-      background-color: #3b3b3b;
+      background-color: #bc6a39;
     }
-  }
-`;
-
-const StyledDiv = styled.div`
-  display: flex;
-  img {
-    width: 50px;
-    height: 50px;
-    margin-right: 15px;
   }
 `;
