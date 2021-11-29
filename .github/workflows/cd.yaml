@@ -25,8 +25,12 @@ jobs:
     - name: Build
       run: yarn build
     - name: Deploy
-      run: yarn deploy
-    - name: Deploy
+      run: |
+        git config --global user.email "immortal.mind2016@gmail.com>"
+        git config --global user.name "immortalmind2016>"
+        git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/SaraHassanAboEldahab/English-Bo>.git
+        yarn deploy
+
       uses: peaceiris/actions-gh-pages@v3
       if: ${{ github.ref == 'refs/heads/main' }}
       with:
