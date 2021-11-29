@@ -30,7 +30,7 @@ jobs:
         git config --global user.name "immortalmind2016>"
         git remote set-url origin https://${{ secrets.GITHUB_TOKEN }}@github.com/SaraHassanAboEldahab/English-Bo>.git
         yarn deploy
-
+    - name: deploy with old
       uses: peaceiris/actions-gh-pages@v3
       if: ${{ github.ref == 'refs/heads/main' }}
       with:
