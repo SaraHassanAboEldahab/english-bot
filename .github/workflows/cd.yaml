@@ -24,7 +24,8 @@ jobs:
 
     - name: Build
       run: yarn build
-
+    - name: Deploy
+      run: yarn deploy
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       if: ${{ github.ref == 'refs/heads/main' }}
