@@ -4,33 +4,44 @@ import styled from "styled-components";
 import send from "../images/send.png";
 import { io } from "socket.io-client";
 import botIcon from "../images/bot-icon.png";
+import Typing from "./Typing";
 
 const socket = io("wss://english-bot-test.herokuapp.com/");
 
 const Chat = () => {
   const { message } = useContext(dataContext);
-  const [messages, setMessages] = useState([
-    { from: "English BOT", text: "👋🏻👋🏻" },
-    { from: "English BOT", text: message?.text },
-  ]);
+  const [messages, setMessages] = useState([]);
 
   const [msg, setMsg] = useState({ text: "" });
+  const [typing, setTyping] = useState(true);
 
   useEffect(() => {
+    if (messages.length === 0) {
+      setTimeout(() => {
+        setMessages([
+          { from: "English BOT", text: "👋🏻👋🏻" },
+          { from: "English BOT", text: message?.text },
+        ]);
+        setTyping(false);
+      }, 2000);
+    }
     socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
-      console.log(msg, message);
       const { result, corrections } = checkResult;
+      console.log("<<<<", message);
+      console.log("//////", checkResult);
       if (
         corrections?.length === 0 ||
-        message.toLowerCase().replace(/\ /g, "") ==
+        message.toLowerCase().replace(/\ /g, "") ===
           result?.toLocaleLowerCase().replace(/\ /g, "")
       ) {
+        setTyping(false);
         setMessages([
           ...messages,
           { from: "English BOT", text: "u r right ✅ " },
         ]);
         return;
       }
+      setTyping(false);
       setMessages([
         ...messages,
         {
@@ -51,6 +62,7 @@ const Chat = () => {
   const sendMsg = (e) => {
     e.preventDefault();
     setMessages([...messages, { from: "Me", text: msg.text }]);
+    setTyping(true);
     socket.emit("checkGrammer", msg);
     setMsg({ text: "" });
   };
@@ -73,6 +85,7 @@ const Chat = () => {
           </>
         ))}
       </StyledMessages>
+      {typing && <Typing />}
       <StyledDiv onSubmit={(e) => sendMsg(e)}>
         <input
           value={msg.text}
