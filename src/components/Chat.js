@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import dataContext from "../contexts/dataContext";
 import styled from "styled-components";
 import send from "../images/send.png";
@@ -9,11 +9,20 @@ import Typing from "./Typing";
 const socket = io("wss://english-bot-test.herokuapp.com/");
 
 const Chat = () => {
+  const ref = useRef();
+
   const { message } = useContext(dataContext);
   const [messages, setMessages] = useState([]);
 
   const [msg, setMsg] = useState({ text: "" });
   const [typing, setTyping] = useState(true);
+
+  const scrollToBottom = () => {
+    ref.current.addEventListener("DOMNodeInserted", (event) => {
+      const { currentTarget: target } = event;
+      target.scroll({ top: target.scrollHeight, behavior: "smooth" });
+    });
+  };
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -27,8 +36,6 @@ const Chat = () => {
     }
     socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
       const { result, corrections } = checkResult;
-      console.log("<<<<", message);
-      console.log("//////", checkResult);
       if (
         corrections?.length === 0 ||
         message.toLowerCase().replace(/\ /g, "") ===
@@ -57,6 +64,7 @@ const Chat = () => {
         },
       ]);
     });
+    scrollToBottom();
   }, [messages]);
 
   const sendMsg = (e) => {
@@ -69,7 +77,7 @@ const Chat = () => {
 
   return (
     <>
-      <StyledMessages>
+      <StyledMessages ref={ref}>
         {messages.map(({ from, text }, index) => (
           <>
             {from === "English BOT" ? (
