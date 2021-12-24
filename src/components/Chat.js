@@ -181,7 +181,7 @@ const Chat = () => {
           socket.emit("getIntroQuestion", { questionNo });
         } else {
           setQuestionNo(0);
-          socket.emit("getModelQuestion", { questionNo: 26, modelNo: 1 });
+          socket.emit("getModelQuestion", { questionNo, modelNo });
           setBotMsg({});
           setCurrentQuestionType("model");
         }
