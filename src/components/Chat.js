@@ -82,35 +82,35 @@ const Chat = () => {
               buttons: message?.buttons,
             },
           ]);
-          if (!botMsg.last) {
-            socket.emit("getModelQuestion", { questionNo, modelNo });
-          } else {
-            socket.emit("getEndQuestion", {});
-          }
-          return;
-        }
-        setTyping(false);
-        setMessages([
-          ...messages,
-          {
-            from: "English BOT",
-            text: (
-              <StyledCorrectDiv>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: `<div>
+        } else {
+          setTyping(false);
+          setMessages([
+            ...messages,
+            {
+              from: "English BOT",
+              text: (
+                <StyledCorrectDiv>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: `<div>
                 ${feedbackCorrection[
                   Math.floor(Math.random() * (feedbackCorrection.length - 1))
                 ].replace("{ANSWER}", `<h4>${result}</h4>`)}
                 </div>`,
-                  }}
-                ></div>
-              </StyledCorrectDiv>
-            ),
-            type: message?.type,
-            buttons: message?.buttons,
-          },
-        ]);
+                    }}
+                  ></div>
+                </StyledCorrectDiv>
+              ),
+              type: message?.type,
+              buttons: message?.buttons,
+            },
+          ]);
+        }
+        if (!botMsg.last) {
+          socket.emit("getModelQuestion", { questionNo, modelNo });
+        } else {
+          socket.emit("getEndQuestion", {});
+        }
       });
     }
 
