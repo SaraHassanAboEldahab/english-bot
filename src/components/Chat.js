@@ -1,21 +1,39 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import dataContext from "../contexts/dataContext";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import send from "../images/send.png";
 import { io } from "socket.io-client";
 import botIcon from "../images/bot-icon.png";
 import Typing from "./Typing";
+import MessageWithButton from "./MessageWithButton";
 
 const socket = io("wss://english-bot-test.herokuapp.com/");
+
+// eslint-disable-next-line no-sparse-arrays
+const feedbackCorrection = [
+  "You are too close , but the write answer is {ANSWER}",
+  "The correct answer is {ANSWER}",
+  "{ANSWER} this is the correct",
+  " Oh sorry , the write answer is {ANSWER}",
+];
+
+const feedbackRight = [
+  "You are right 🤩",
+  "you are too good",
+  "great 👏",
+  "Nice 😁😁",
+  "You are right ✅ ",
+];
 
 const Chat = () => {
   const ref = useRef();
 
-  const { message } = useContext(dataContext);
+  const [questionNo, setQuestionNo] = useState(0);
+  const [modelNo, setModelNo] = useState(Math.floor(Math.random() * 3));
   const [messages, setMessages] = useState([]);
-
   const [msg, setMsg] = useState({ text: "" });
   const [typing, setTyping] = useState(true);
+  const [botMsg, setBotMsg] = useState({});
+  const [currentQuestionType, setCurrentQuestionType] = useState("intro");
 
   const scrollToBottom = () => {
     ref.current.addEventListener("DOMNodeInserted", (event) => {
@@ -27,63 +45,229 @@ const Chat = () => {
   useEffect(() => {
     if (messages.length === 0) {
       setTimeout(() => {
-        setMessages([
-          { from: "English BOT", text: "👋🏻👋🏻" },
-          { from: "English BOT", text: message?.text },
-        ]);
-        setTyping(false);
+        socket.emit("getIntroQuestion", { questionNo });
+        socket.on("responseIntroQuestion", ({ message, last }) => {
+          setMessages([
+            ...messages,
+            { from: "English BOT", text: message.text },
+          ]);
+          if (!last) {
+            setQuestionNo(questionNo + 1);
+          }
+          setTyping(false);
+        });
       }, 2000);
     }
-    socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
-      const { result, corrections } = checkResult;
-      if (
-        corrections?.length === 0 ||
-        message.toLowerCase().replace(/\ /g, "") ===
-          result?.toLocaleLowerCase().replace(/\ /g, "")
-      ) {
+  }, []);
+
+  useEffect(() => {
+    if (currentQuestionType === "model") {
+      socket.off("checkGrammerResult");
+      socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
+        const { result, corrections } = checkResult;
+        if (
+          corrections?.length === 0 ||
+          message?.toLowerCase().replace(/\ /g, "") ===
+            result?.toLocaleLowerCase().replace(/\ /g, "")
+        ) {
+          setTyping(false);
+          setMessages([
+            ...messages,
+            {
+              from: "English BOT",
+              text: feedbackRight[
+                Math.floor(Math.random() * (feedbackRight.length - 1))
+              ],
+              type: message?.type,
+              buttons: message?.buttons,
+            },
+          ]);
+          if (!botMsg.last) {
+            socket.emit("getModelQuestion", { questionNo, modelNo });
+          } else {
+            socket.emit("getEndQuestion", {});
+          }
+          return;
+        }
         setTyping(false);
         setMessages([
           ...messages,
-          { from: "English BOT", text: "u r right ✅ " },
+          {
+            from: "English BOT",
+            text: (
+              <StyledCorrectDiv>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: `<div>
+                ${feedbackCorrection[
+                  Math.floor(Math.random() * (feedbackCorrection.length - 1))
+                ].replace("{ANSWER}", `<h4>${result}</h4>`)}
+                </div>`,
+                  }}
+                ></div>
+              </StyledCorrectDiv>
+            ),
+            type: message?.type,
+            buttons: message?.buttons,
+          },
         ]);
-        return;
-      }
-      setTyping(false);
+      });
+    }
+
+    setCurrentQuestionType(currentQuestionType);
+
+    // close the older listener then open new one
+    socket.off("responseIntroQuestion");
+    socket.off("responseModelQuestion");
+
+    socket.on("responseIntroQuestion", ({ message, last }) => {
       setMessages([
         ...messages,
         {
           from: "English BOT",
-          text: (
-            <StyledCorrectDiv>
-              <div>
-                you are too close , the correct answer is
-                <h4>{result}</h4>
-              </div>
-            </StyledCorrectDiv>
-          ),
+          text: message.text,
+          type: message?.type,
+          buttons: message?.buttons,
         },
       ]);
+      setBotMsg({ message, last });
+      if (!last) {
+        setQuestionNo(questionNo + 1);
+      }
+      setTyping(false);
     });
-    scrollToBottom();
-  }, [messages]);
 
-  const sendMsg = (e) => {
+    socket.on("responseModelQuestion", ({ message, last }) => {
+      setMessages([
+        ...messages,
+        {
+          from: "English BOT",
+          text: message.text,
+          type: message?.type,
+          buttons: message?.buttons,
+        },
+      ]);
+      console.log(message);
+      setBotMsg({ message, last });
+      if (!last) {
+        setQuestionNo(questionNo + 1);
+      }
+      setTyping(false);
+    });
+
+    scrollToBottom();
+  }, [messages, questionNo, msg.text, currentQuestionType]);
+
+  const sendMsgSubmit = (e) => {
     e.preventDefault();
     setMessages([...messages, { from: "Me", text: msg.text }]);
     setTyping(true);
-    socket.emit("checkGrammer", msg);
+    if (
+      botMsg?.message?.response?.length > 0 &&
+      currentQuestionType === "intro"
+    ) {
+      setTimeout(() => {
+        const response =
+          botMsg.message.response[
+            Math.floor(Math.random() * (botMsg.message.response.length - 1))
+          ];
+        setMessages([
+          ...messages,
+          { from: "Me", text: msg.text },
+          { from: "English BOT", text: response },
+        ]);
+        if (!botMsg.last) {
+          setTyping(true);
+          socket.emit("getIntroQuestion", { questionNo });
+        } else {
+          setQuestionNo(0);
+          socket.emit("getModelQuestion", { questionNo: 26, modelNo: 1 });
+          setBotMsg({});
+          setCurrentQuestionType("model");
+        }
+      }, 1000);
+    }
+    if (currentQuestionType === "model") {
+      socket.emit("checkGrammer", msg);
+      setBotMsg({});
+    }
     setMsg({ text: "" });
+  };
+
+  const onBtnClick = (message) => {
+    setMessages([...messages, { from: "Me", text: message.title }]);
+    setTimeout(() => {
+      setTyping(false);
+      if (message.correct === true) {
+        setMessages([
+          ...messages,
+          { from: "Me", text: message.title },
+          {
+            from: "English BOT",
+            text: feedbackRight[
+              Math.floor(Math.random() * (feedbackRight.length - 1))
+            ],
+            type: message?.type,
+            buttons: message?.buttons,
+          },
+        ]);
+      } else {
+        const result = botMsg.message.buttons.find(
+          (btn) => btn.correct === true
+        ).title;
+        console.log(":::::::", botMsg.message);
+        setMessages([
+          ...messages,
+          { from: "Me", text: message.title },
+          {
+            from: "English BOT",
+            text: (
+              <StyledCorrectDiv>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: `<div>
+              ${feedbackCorrection[
+                Math.floor(Math.random() * (feedbackCorrection.length - 1))
+              ].replace("{ANSWER}", `<h4>${result}</h4>`)}
+              </div>`,
+                  }}
+                ></div>
+              </StyledCorrectDiv>
+            ),
+            type: message?.type,
+            buttons: message?.buttons,
+          },
+        ]);
+      }
+      if (!botMsg.last) {
+        socket.emit("getModelQuestion", { questionNo, modelNo });
+      } else {
+        socket.emit("getEndQuestion", {});
+      }
+    }, 1000);
   };
 
   return (
     <>
       <StyledMessages ref={ref}>
-        {messages.map(({ from, text }, index) => (
+        {messages.map(({ from, text, type, buttons }, index) => (
           <>
             {from === "English BOT" ? (
               <StyledBotDiv key={index}>
                 <img src={botIcon} alt=" " />
-                <span>{text}</span>
+
+                {type === "@message-type/button" ? (
+                  <MessageWithButton
+                    buttons={buttons}
+                    text={text}
+                    setMessages={setMessages}
+                    messages={messages}
+                    socket={socket}
+                    onBtnClick={onBtnClick}
+                  />
+                ) : (
+                  <span>{text}</span>
+                )}
               </StyledBotDiv>
             ) : (
               <StyledMeDiv key={index}>
@@ -94,7 +278,7 @@ const Chat = () => {
         ))}
       </StyledMessages>
       {typing && <Typing />}
-      <StyledDiv onSubmit={(e) => sendMsg(e)}>
+      <StyledDiv onSubmit={(e) => sendMsgSubmit(e)}>
         <input
           value={msg.text}
           onChange={(e) => setMsg({ text: e.target.value })}
@@ -158,7 +342,7 @@ const StyledBotDiv = styled.div`
   display: flex;
   align-items: center;
   span {
-    background-color: #717171;
+    background-color: #9b9b9b;
     color: white;
     padding: 10px;
   }

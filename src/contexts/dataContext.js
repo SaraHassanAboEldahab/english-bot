@@ -18,7 +18,6 @@ export const DataContext = ({ children }) => {
   };
   useEffect(() => {
     fetchData();
-    console.log(">>>>>", newData);
   }, []);
 
   return <Context.Provider value={newData}>{children}</Context.Provider>;
