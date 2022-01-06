@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import botIcon from "../images/bot-icon.png";
 import Typing from "./Typing";
 import MessageWithButton from "./MessageWithButton";
+import cuid from "cuid";
 
 const socket = io("wss://english-bot-test.herokuapp.com/");
 
@@ -24,16 +25,46 @@ const feedbackRight = [
   "You are right ✅ ",
 ];
 
+const end = [
+  "Happy end",
+  "See you later🙋‍♀️",
+  " Peace out🥳",
+  " It was nice to see you again🙋‍♀️",
+  "Take care",
+  "I look forward to our next dialogue",
+  "Good bye",
+  "Bye bye!👋",
+  "Have a nice day",
+  "Goodnight",
+  "I’m out of here",
+  "🥳",
+];
+
 const Chat = () => {
   const ref = useRef();
 
-  const [questionNo, setQuestionNo] = useState(0);
-  const [modelNo, setModelNo] = useState(Math.floor(Math.random() * 3));
-  const [messages, setMessages] = useState([]);
+  const [questionNo, setQuestionNo] = useState(
+    JSON.parse(localStorage.getItem("bot"))?.questionNo || 0
+  );
+  const [modelNo, setModelNo] = useState(
+    JSON.parse(localStorage.getItem("bot"))?.modelNo ||
+      Math.floor(Math.random() * 3)
+  );
+  const [messages, setMessages] = useState(
+    JSON.parse(localStorage.getItem("messages"))?.messages || []
+  );
+
   const [msg, setMsg] = useState({ text: "" });
-  const [typing, setTyping] = useState(true);
-  const [botMsg, setBotMsg] = useState({});
-  const [currentQuestionType, setCurrentQuestionType] = useState("intro");
+
+  const [typing, setTyping] = useState(
+    JSON.parse(localStorage.getItem("bot"))?.typing ?? true
+  );
+  const [botMsg, setBotMsg] = useState(
+    JSON.parse(localStorage.getItem("bot"))?.botMsg || {}
+  );
+  const [currentQuestionType, setCurrentQuestionType] = useState(
+    JSON.parse(localStorage.getItem("bot"))?.currentQuestionType || "intro"
+  );
 
   const scrollToBottom = () => {
     ref.current.addEventListener("DOMNodeInserted", (event) => {
@@ -41,6 +72,23 @@ const Chat = () => {
       target.scroll({ top: target.scrollHeight, behavior: "smooth" });
     });
   };
+
+  useEffect(() => {
+    localStorage.setItem(
+      "bot",
+      JSON.stringify({
+        questionNo,
+        currentQuestionType,
+        botMsg,
+        typing,
+        modelNo,
+      })
+    );
+  }, [questionNo, currentQuestionType, botMsg, typing, modelNo]);
+
+  useEffect(() => {
+    localStorage.setItem("messages", JSON.stringify({ messages }));
+  }, [messages]);
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -88,19 +136,11 @@ const Chat = () => {
             ...messages,
             {
               from: "English BOT",
-              text: (
-                <StyledCorrectDiv>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: `<div>
-                ${feedbackCorrection[
-                  Math.floor(Math.random() * (feedbackCorrection.length - 1))
-                ].replace("{ANSWER}", `<h4>${result}</h4>`)}
-                </div>`,
-                    }}
-                  ></div>
-                </StyledCorrectDiv>
-              ),
+              text: `
+              ${feedbackCorrection[
+                Math.floor(Math.random() * (feedbackCorrection.length - 1))
+              ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+              `,
               type: message?.type,
               buttons: message?.buttons,
             },
@@ -147,11 +187,20 @@ const Chat = () => {
           buttons: message?.buttons,
         },
       ]);
-      console.log(message);
       setBotMsg({ message, last });
       if (!last) {
         setQuestionNo(questionNo + 1);
+      } else {
+        setMessages([
+          ...messages,
+          {
+            from: "English BOT",
+            text: end[Math.floor(Math.random() * (end.length - 1))],
+          },
+        ]);
+        setCurrentQuestionType("end");
       }
+
       setTyping(false);
     });
 
@@ -188,7 +237,7 @@ const Chat = () => {
       }, 1000);
     }
     if (currentQuestionType === "model") {
-      socket.emit("checkGrammer", msg);
+      socket.emit("checkGrammer", { ...msg, _id: botMsg.message._id });
       setBotMsg({});
     }
     setMsg({ text: "" });
@@ -214,26 +263,19 @@ const Chat = () => {
       } else {
         const result = botMsg.message.buttons.find(
           (btn) => btn.correct === true
-        ).title;
-        console.log(":::::::", botMsg.message);
+        )?.title;
+        console.log(botMsg.message.buttons);
+
         setMessages([
           ...messages,
           { from: "Me", text: message.title },
           {
             from: "English BOT",
-            text: (
-              <StyledCorrectDiv>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: `<div>
-              ${feedbackCorrection[
-                Math.floor(Math.random() * (feedbackCorrection.length - 1))
-              ].replace("{ANSWER}", `<h4>${result}</h4>`)}
-              </div>`,
-                  }}
-                ></div>
-              </StyledCorrectDiv>
-            ),
+            text: `
+            ${feedbackCorrection[
+              Math.floor(Math.random() * (feedbackCorrection.length - 1))
+            ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+            `,
             type: message?.type,
             buttons: message?.buttons,
           },
@@ -253,7 +295,7 @@ const Chat = () => {
         {messages.map(({ from, text, type, buttons }, index) => (
           <>
             {from === "English BOT" ? (
-              <StyledBotDiv key={index}>
+              <StyledBotDiv key={cuid()}>
                 <img src={botIcon} alt=" " />
 
                 {type === "@message-type/button" ? (
@@ -266,7 +308,18 @@ const Chat = () => {
                     onBtnClick={onBtnClick}
                   />
                 ) : (
-                  <span>{text}</span>
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: `
+                    <style>
+                    strong{
+                      color: #74eaf4;
+                    }
+                    </style>
+                    <div>${text}</div>
+                    `,
+                    }}
+                  ></span>
                 )}
               </StyledBotDiv>
             ) : (
@@ -367,8 +420,8 @@ const StyledMeDiv = styled.div`
 const StyledCorrectDiv = styled.div`
   display: flex;
   align-items: center;
-  h4 {
-    display: inline-block;
+  strong {
+    /* display: inline-block; */
     color: #74eaf4;
     margin: 0px 0px 0px 10px;
   }

@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import cuid from "cuid";
 
 function MessageWithButton({ buttons, text, onBtnClick }) {
   return (
@@ -11,8 +12,9 @@ function MessageWithButton({ buttons, text, onBtnClick }) {
             onClick={() => {
               onBtnClick(btn);
             }}
+            key={cuid()}
           >
-            {btn.title}
+            {btn?.title}
           </StyledLi>
         ))}
       </StyledUl>
