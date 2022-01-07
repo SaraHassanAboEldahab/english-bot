@@ -52,6 +52,7 @@ const Chat = () => {
       ? Math.floor(Math.random() * 3)
       : 0
   );
+
   const [messages, setMessages] = useState(
     JSON.parse(localStorage.getItem("messages"))?.messages || []
   );
@@ -67,7 +68,6 @@ const Chat = () => {
   const [currentQuestionType, setCurrentQuestionType] = useState(
     JSON.parse(localStorage.getItem("bot"))?.currentQuestionType || "intro"
   );
-
   const scrollToBottom = () => {
     ref.current.addEventListener("DOMNodeInserted", (event) => {
       const { currentTarget: target } = event;
@@ -155,8 +155,6 @@ const Chat = () => {
         }
       });
     }
-
-    setCurrentQuestionType(currentQuestionType);
 
     // close the older listener then open new one
     socket.off("responseIntroQuestion");
@@ -251,10 +249,10 @@ const Chat = () => {
           setTyping(true);
           socket.emit("getIntroQuestion", { questionNo });
         } else {
-          setQuestionNo(0);
-          socket.emit("getModelQuestion", { questionNo, modelNo });
-          setBotMsg({});
           setCurrentQuestionType("model");
+          setQuestionNo(0);
+          setBotMsg({});
+          socket.emit("getModelQuestion", { questionNo, modelNo });
         }
       }, 1000);
     }
@@ -286,7 +284,6 @@ const Chat = () => {
         const result = botMsg.message.buttons.find(
           (btn) => btn.correct === true
         )?.title;
-        console.log(botMsg.message.buttons);
 
         setMessages([
           ...messages,
