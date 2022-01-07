@@ -48,9 +48,9 @@ const Chat = () => {
   );
   const [modelNo, setModelNo] = useState(
     JSON.parse(localStorage.getItem("bot"))?.modelNo ??
-      !JSON.parse(localStorage.getItem("doneBefore"))?.flag
-      ? Math.floor(Math.random() * 3)
-      : 0
+      (JSON.parse(localStorage.getItem("doneBefore"))?.flag
+        ? Math.floor(Math.random() * 3)
+        : 0)
   );
 
   const [messages, setMessages] = useState(
@@ -182,7 +182,7 @@ const Chat = () => {
         ...messages,
         {
           from: "English BOT",
-          text: message.text,
+          text: message?.text,
           type: message?.type,
           buttons: message?.buttons,
         },
@@ -199,13 +199,13 @@ const Chat = () => {
           },
         ]);
         if (
-          !JSON.parse(localStorage.getItem("doneBefore")).flag &&
+          !JSON.parse(localStorage.getItem("doneBefore"))?.flag &&
           modelNo < 2
         ) {
           setModelNo(modelNo + 1);
           setQuestionNo(0);
         } else if (
-          !JSON.parse(localStorage.getItem("doneBefore")).flag &&
+          !JSON.parse(localStorage.getItem("doneBefore"))?.flag &&
           modelNo === 2
         ) {
           localStorage.setItem("doneBefore", JSON.stringify({ flag: true }));
