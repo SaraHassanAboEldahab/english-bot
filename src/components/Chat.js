@@ -47,8 +47,10 @@ const Chat = () => {
     JSON.parse(localStorage.getItem("bot"))?.questionNo || 0
   );
   const [modelNo, setModelNo] = useState(
-    JSON.parse(localStorage.getItem("bot"))?.modelNo ||
-      Math.floor(Math.random() * 3)
+    JSON.parse(localStorage.getItem("bot"))?.modelNo ??
+      !JSON.parse(localStorage.getItem("doneBefore"))?.flag
+      ? Math.floor(Math.random() * 3)
+      : 0
   );
   const [messages, setMessages] = useState(
     JSON.parse(localStorage.getItem("messages"))?.messages || []
@@ -198,14 +200,34 @@ const Chat = () => {
             text: end[Math.floor(Math.random() * (end.length - 1))],
           },
         ]);
-        setCurrentQuestionType("end");
+        if (
+          !JSON.parse(localStorage.getItem("doneBefore")).flag &&
+          modelNo < 2
+        ) {
+          setModelNo(modelNo + 1);
+          setQuestionNo(0);
+        } else if (
+          !JSON.parse(localStorage.getItem("doneBefore")).flag &&
+          modelNo === 2
+        ) {
+          localStorage.setItem("doneBefore", JSON.stringify({ flag: true }));
+          setCurrentQuestionType("end");
+        } else {
+          setCurrentQuestionType("end");
+        }
       }
 
       setTyping(false);
     });
-
     scrollToBottom();
-  }, [messages, questionNo, msg.text, currentQuestionType]);
+  }, [
+    messages,
+    questionNo,
+    msg.text,
+    currentQuestionType,
+    modelNo,
+    botMsg.last,
+  ]);
 
   const sendMsgSubmit = (e) => {
     e.preventDefault();

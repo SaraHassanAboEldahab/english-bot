@@ -28,15 +28,30 @@ const Bot = () => {
       <Container>
         <Content>
           {!active && (
-            <StyledDiv>
-              <h3>Get Started</h3>
-              <div>
-                <span className="replyNote">My usual reply time</span>
-                <br />
-                <span className="replyTome">🕓 Under 1 min</span>
-              </div>
-              <button onClick={() => setActive(true)}>Get Started</button>
-            </StyledDiv>
+            <>
+              <StyledDiv>
+                <h3>Get Started</h3>
+                <div>
+                  <span className="replyNote">My usual reply time</span>
+                  <br />
+                  <span className="replyTome">🕓 Under 1 min</span>
+                </div>
+                <FlexDiv>
+                  <StartedBtn onClick={() => setActive(true)}>
+                    Get Started
+                  </StartedBtn>
+                  <ResetBtn
+                    onClick={() => {
+                      localStorage.removeItem("messages");
+                      localStorage.removeItem("bot");
+                      setActive(true);
+                    }}
+                  >
+                    Reset
+                  </ResetBtn>
+                </FlexDiv>
+              </StyledDiv>
+            </>
           )}
           {active && <Chat />}
         </Content>
@@ -98,20 +113,40 @@ const StyledDiv = styled.div`
   .replyTome {
     font-weight: bold;
   }
-  button {
-    border: none;
-    background-color: #763c1a;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    width: 200px;
-    margin: 30px 0px 40px 0px;
-    transition: background-color 0.1s ease-in;
-    &:hover {
-      background-color: #bc6a39;
-    }
+`;
+
+const FlexDiv = styled.div`
+  display: flex;
+`;
+
+const StartedBtn = styled.button`
+  border: none;
+  background-color: #0695d5;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  width: 200px;
+  margin: 30px 0px 40px 0px;
+  transition: background-color 0.1s ease-in;
+  margin-right: 20px;
+  &:hover {
+    background-color: #bc6a39;
   }
+`;
+
+const ResetBtn = styled.button`
+  border: none;
+  background-color: #a00b0b;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  width: 200px;
+  margin: 30px 0px 40px 0px;
+  transition: background-color 0.1s ease-in;
 `;
