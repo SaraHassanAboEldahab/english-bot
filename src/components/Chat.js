@@ -191,13 +191,6 @@ const Chat = () => {
       if (!last) {
         setQuestionNo(questionNo + 1);
       } else {
-        setMessages([
-          ...messages,
-          {
-            from: "English BOT",
-            text: end[Math.floor(Math.random() * (end.length - 1))],
-          },
-        ]);
         if (
           !JSON.parse(localStorage.getItem("doneBefore"))?.flag &&
           modelNo < 2
@@ -206,11 +199,28 @@ const Chat = () => {
           setQuestionNo(0);
         } else if (
           !JSON.parse(localStorage.getItem("doneBefore"))?.flag &&
-          modelNo === 2
+          modelNo === 2 &&
+          botMsg.last
         ) {
+          console.log("ELSE IF ");
           localStorage.setItem("doneBefore", JSON.stringify({ flag: true }));
+          setMessages([
+            ...messages,
+            {
+              from: "English BOT",
+              text: end[Math.floor(Math.random() * (end.length - 1))],
+            },
+          ]);
           setCurrentQuestionType("end");
         } else {
+          console.log("ELSEEE");
+          setMessages([
+            ...messages,
+            {
+              from: "English BOT",
+              text: end[Math.floor(Math.random() * (end.length - 1))],
+            },
+          ]);
           setCurrentQuestionType("end");
         }
       }
