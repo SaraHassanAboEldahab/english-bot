@@ -22,29 +22,29 @@ const FirstBot = () => {
   const ref = useRef();
 
   const [questionNo, setQuestionNo] = useState(
-    JSON.parse(localStorage.getItem("bot"))?.questionNo || 0
+    JSON.parse(localStorage.getItem("bot1"))?.questionNo || 0
   );
   const [modelNo, setModelNo] = useState(
-    JSON.parse(localStorage.getItem("bot"))?.modelNo ??
-      (JSON.parse(localStorage.getItem("doneBefore"))?.flag
+    JSON.parse(localStorage.getItem("bot1"))?.modelNo ??
+      (JSON.parse(localStorage.getItem("doneBefore1"))?.flag
         ? Math.floor(Math.random() * 3)
         : 0)
   );
 
   const [messages, setMessages] = useState(
-    JSON.parse(localStorage.getItem("messages"))?.messages || []
+    JSON.parse(localStorage.getItem("messages1"))?.messages || []
   );
 
   const [msg, setMsg] = useState({ text: "" });
 
   const [typing, setTyping] = useState(
-    JSON.parse(localStorage.getItem("bot"))?.typing ?? true
+    JSON.parse(localStorage.getItem("bot1"))?.typing ?? true
   );
   const [botMsg, setBotMsg] = useState(
-    JSON.parse(localStorage.getItem("bot"))?.botMsg || {}
+    JSON.parse(localStorage.getItem("bot1"))?.botMsg || {}
   );
   const [currentQuestionType, setCurrentQuestionType] = useState(
-    JSON.parse(localStorage.getItem("bot"))?.currentQuestionType || "intro"
+    JSON.parse(localStorage.getItem("bot1"))?.currentQuestionType || "intro"
   );
   const scrollToBottom = () => {
     ref.current.addEventListener("DOMNodeInserted", (event) => {
@@ -55,7 +55,7 @@ const FirstBot = () => {
 
   useEffect(() => {
     localStorage.setItem(
-      "bot",
+      "bot1",
       JSON.stringify({
         questionNo,
         currentQuestionType,
@@ -67,7 +67,7 @@ const FirstBot = () => {
   }, [questionNo, currentQuestionType, botMsg, typing, modelNo]);
 
   useEffect(() => {
-    localStorage.setItem("messages", JSON.stringify({ messages }));
+    localStorage.setItem("messages1", JSON.stringify({ messages }));
   }, [messages]);
 
   useEffect(() => {
@@ -170,18 +170,18 @@ const FirstBot = () => {
         setQuestionNo(questionNo + 1);
       } else {
         if (
-          !JSON.parse(localStorage.getItem("doneBefore"))?.flag &&
+          !JSON.parse(localStorage.getItem("doneBefore1"))?.flag &&
           modelNo < 2
         ) {
           setModelNo(modelNo + 1);
           setQuestionNo(0);
         } else if (
-          !JSON.parse(localStorage.getItem("doneBefore"))?.flag &&
+          !JSON.parse(localStorage.getItem("doneBefore1"))?.flag &&
           modelNo === 2 &&
           botMsg.last
         ) {
           console.log("ELSE IF ");
-          localStorage.setItem("doneBefore", JSON.stringify({ flag: true }));
+          localStorage.setItem("doneBefore1", JSON.stringify({ flag: true }));
           setMessages([
             ...messages,
             {

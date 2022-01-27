@@ -4,19 +4,25 @@ import styled from "styled-components";
 
 const bots = [
   {
-    botName: "Correction Bot",
+    botName: "Bot 1",
     botDescription: "It will correct your incorrect answers",
     botLink: "/english-bot/bot1",
+    botItem: "bot1",
+    messagesItem: "messages1",
   },
   {
-    botName: "Incorrect Bot",
+    botName: "Bot 2",
     botDescription: "It won't correct your incorrect answers",
     botLink: "/english-bot/bot2",
+    botItem: "bot2",
+    messagesItem: "messages2",
   },
   {
-    botName: "Try Bot",
+    botName: "Bot 3",
     botDescription: "It will correct your incorrect answers after three tries",
     botLink: "/english-bot/bot3",
+    botItem: "bot3",
+    messagesItem: "messages3",
   },
 ];
 
@@ -33,28 +39,28 @@ const Bot = ({ setActive }) => {
           </div> */}
 
           {bots.map((bot) => (
-            <details>
+            <StyledDetails>
               <summary>{bot.botName}</summary>
               <p>{bot.botDescription}</p>
               <FlexDiv>
                 <Link to={bot.botLink}>
                   <StartedBtn onClick={() => setActive(true)}>
-                    Get Started
+                    Complete
                   </StartedBtn>
                 </Link>
                 <Link to={bot.botLink}>
                   <ResetBtn
                     onClick={() => {
-                      localStorage.removeItem("messages");
-                      localStorage.removeItem("bot");
+                      localStorage.removeItem(bot.botItem);
+                      localStorage.removeItem(bot.messagesItem);
                       setActive(true);
                     }}
                   >
-                    Reset
+                    Start
                   </ResetBtn>
                 </Link>
               </FlexDiv>
-            </details>
+            </StyledDetails>
           ))}
         </StyledDiv>
       </>
@@ -104,9 +110,6 @@ const StartedBtn = styled.button`
   margin: 30px 0px 40px 0px;
   transition: background-color 0.1s ease-in;
   margin-right: 20px;
-  a {
-    text-decoration: none;
-  }
   &:hover {
     background-color: #bc6a39;
   }
@@ -124,4 +127,19 @@ const ResetBtn = styled.button`
   width: 200px;
   margin: 30px 0px 40px 0px;
   transition: background-color 0.1s ease-in;
+`;
+
+const StyledDetails = styled.details`
+  summary::before {
+    content: "▶️";
+  }
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+  &[open] {
+    summary::before {
+      content: "🔽";
+    }
+  }
 `;
