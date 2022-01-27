@@ -26,11 +26,6 @@ const Header = ({ active }) => {
 
 export default Header;
 
-// styles
-const Container = styled.div`
-  padding: 0px 25px;
-`;
-
 const StyledH1 = styled.h1`
   margin: 10px 0px 0px 0px;
   font-weight: 500;

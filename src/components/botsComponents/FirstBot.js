@@ -1,46 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
-import { io } from "socket.io-client";
-import send from "../images/send.png";
-import botIcon from "../images/bot-icon.png";
-import Typing from "./Typing";
-import MessageWithButton from "./MessageWithButton";
+import send from "../../images/send.png";
+import botIcon from "../../images/bot-icon.png";
+import Typing from "../Typing";
+import MessageWithButton from "../MessageWithButton";
 import cuid from "cuid";
+import {
+  Content,
+  StyledForm,
+  StyledMessages,
+  StyledBotDiv,
+  StyledMeDiv,
+} from "./styles";
+import {
+  socket,
+  feedbackCorrection,
+  feedbackRight,
+  endMessages,
+} from "./const";
 
-const socket = io("wss://english-bot-test.herokuapp.com/");
-
-// eslint-disable-next-line no-sparse-arrays
-const feedbackCorrection = [
-  "You are too close , but the write answer is {ANSWER}",
-  "The correct answer is {ANSWER}",
-  "{ANSWER} this is the correct",
-  " Oh sorry , the write answer is {ANSWER}",
-];
-
-const feedbackRight = [
-  "You are right 🤩",
-  "you are too good",
-  "great 👏",
-  "Nice 😁😁",
-  "You are right ✅ ",
-];
-
-const end = [
-  "Happy end",
-  "See you later🙋‍♀️",
-  " Peace out🥳",
-  " It was nice to see you again🙋‍♀️",
-  "Take care",
-  "I look forward to our next dialogue",
-  "Good bye",
-  "Bye bye!👋",
-  "Have a nice day",
-  "Goodnight",
-  "I’m out of here",
-  "🥳",
-];
-
-const Chat = () => {
+const FirstBot = () => {
   const ref = useRef();
 
   const [questionNo, setQuestionNo] = useState(
@@ -208,7 +186,9 @@ const Chat = () => {
             ...messages,
             {
               from: "English BOT",
-              text: end[Math.floor(Math.random() * (end.length - 1))],
+              text: endMessages[
+                Math.floor(Math.random() * (endMessages.length - 1))
+              ],
             },
           ]);
           setCurrentQuestionType("end");
@@ -218,7 +198,9 @@ const Chat = () => {
             ...messages,
             {
               from: "English BOT",
-              text: end[Math.floor(Math.random() * (end.length - 1))],
+              text: endMessages[
+                Math.floor(Math.random() * (endMessages.length - 1))
+              ],
             },
           ]);
           setCurrentQuestionType("end");
@@ -361,7 +343,7 @@ const Chat = () => {
           ))}
         </StyledMessages>
         {typing && <Typing />}
-        <StyledDiv onSubmit={(e) => sendMsgSubmit(e)}>
+        <StyledForm onSubmit={(e) => sendMsgSubmit(e)}>
           <input
             value={msg.text}
             onChange={(e) => setMsg({ text: e.target.value })}
@@ -371,101 +353,10 @@ const Chat = () => {
           <button type="submit">
             <img src={send} alt="" />
           </button>
-        </StyledDiv>
+        </StyledForm>
       </Content>
     </>
   );
 };
 
-export default Chat;
-
-//styles
-
-const Content = styled.div`
-  margin: -70px 0px 0px 0px;
-  background-color: white;
-  border-radius: 5px;
-  box-shadow: rgb(0 0 0 / 10%) 0px 4px 15px 0px,
-    rgb(0 0 0 / 10%) 0px 1px 2px 0px, rgb(32 43 57 / 50%) 0px -2px 0px 0px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const StyledDiv = styled.form`
-  display: flex;
-  width: 100%;
-  border-top: 1px solid rgb(230, 230, 230);
-  input {
-    border: none;
-    height: 40px;
-    width: 80%;
-    padding: 10px 20px;
-    outline: 0;
-  }
-  button {
-    border: none;
-    background-color: white;
-    width: 18%;
-    display: flex;
-    justify-content: end;
-    align-items: center;
-    img {
-      width: 32px;
-      height: 32px;
-    }
-  }
-`;
-
-const StyledMessages = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-height: 400px;
-  min-height: 400px;
-  background: white;
-  overflow-y: auto;
-  padding: 15px 20px;
-  span {
-    width: fit-content;
-    height: fit-content;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    margin-bottom: 10px;
-  }
-`;
-
-const StyledBotDiv = styled.div`
-  display: flex;
-  align-items: center;
-  span {
-    background-color: #9b9b9b;
-    color: white;
-    padding: 10px;
-  }
-  img {
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
-  }
-`;
-
-const StyledMeDiv = styled.div`
-  margin-left: auto;
-  span {
-    display: block;
-    background-color: #0073a5;
-    color: white;
-    margin-left: 10px;
-    padding: 10px;
-  }
-`;
-
-const StyledCorrectDiv = styled.div`
-  display: flex;
-  align-items: center;
-  strong {
-    /* display: inline-block; */
-    color: #74eaf4;
-    margin: 0px 0px 0px 10px;
-  }
-`;
+export default FirstBot;

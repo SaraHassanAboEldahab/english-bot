@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Home from "./components/Home";
 import Header from "./components/Header";
-import FirstBot from "./components/FirstBot";
+import FirstBot from "./components/botsComponents/FirstBot";
+import SecondBot from "./components/botsComponents/SecondBot";
 import { Routes, Route } from "react-router-dom";
 import styled from "styled-components";
 
@@ -14,6 +15,7 @@ const App = () => {
         <Routes>
           <Route path="/english-bot" element={<Home setActive={setActive} />} />
           <Route path="/english-bot/bot1" element={<FirstBot />} />
+          <Route path="/english-bot/bot2" element={<SecondBot />} />
         </Routes>
       </Container>
     </>
