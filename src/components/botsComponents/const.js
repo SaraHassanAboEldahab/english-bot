@@ -32,3 +32,35 @@ export const endMessages = [
   "I’m out of here",
   "🥳",
 ];
+
+export const feedback_wrong = [
+  "You are wrong ☺️",
+  "false ☺️",
+  "Incorrect answer",
+  "Sorry , wrong ☺️",
+  "bad 🥳😔🤬",
+  "That’s wrong answer 🥳😔🤬",
+  "Sad",
+];
+
+export const retry = [
+  "Please think again",
+  "Try again ",
+  "Repeat your answer ",
+  "Please retry again 😵 ",
+  "Sorry, Retry",
+  "😵",
+];
+
+export const after_retry = [
+  "Go to study again",
+  "ask your teacher 🧑‍🏫",
+  "Ask your teacher for tips & tricks 🧑‍🏫",
+  "ask your tutor 🧑‍🏫",
+  "Bad luck",
+  " go to our website and study again",
+  "Revise your lessons",
+  "Looking back to your lesson",
+  "You should revise your lessons ✍️",
+  "reflect your daily instructional activities ✍️",
+];

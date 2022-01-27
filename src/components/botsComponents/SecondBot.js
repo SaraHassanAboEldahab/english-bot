@@ -16,6 +16,7 @@ import {
   feedbackCorrection,
   feedbackRight,
   endMessages,
+  feedback_wrong,
 } from "./const";
 
 const SecondBot = () => {
@@ -116,12 +117,9 @@ const SecondBot = () => {
             ...messages,
             {
               from: "English BOT",
-              //   text: `
-              //   ${feedbackCorrection[
-              //     Math.floor(Math.random() * (feedbackCorrection.length - 1))
-              //   ].replace("{ANSWER}", `<strong>${result}</strong>`)}
-              //   `,
-              text: "Your answer is wrong 😥",
+              text: feedback_wrong[
+                Math.floor(Math.random() * (feedback_wrong.length - 1))
+              ],
               type: message?.type,
               buttons: message?.buttons,
             },
