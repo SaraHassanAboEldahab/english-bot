@@ -16,35 +16,38 @@ import {
   feedbackCorrection,
   feedbackRight,
   endMessages,
+  retry,
+  after_retry,
 } from "./const";
 
-const SecondBot = () => {
+const ThirdBot = ({ setActive }) => {
   const ref = useRef();
 
+  const [times, setTimes] = useState(0);
   const [questionNo, setQuestionNo] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.questionNo || 0
+    JSON.parse(localStorage.getItem("bot3"))?.questionNo || 0
   );
   const [modelNo, setModelNo] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.modelNo ??
-      (JSON.parse(localStorage.getItem("doneBefore2"))?.flag
+    JSON.parse(localStorage.getItem("bot3"))?.modelNo ??
+      (JSON.parse(localStorage.getItem("doneBefore3"))?.flag
         ? Math.floor(Math.random() * 3)
         : 0)
   );
 
   const [messages, setMessages] = useState(
-    JSON.parse(localStorage.getItem("messages2"))?.messages || []
+    JSON.parse(localStorage.getItem("messages3"))?.messages || []
   );
 
   const [msg, setMsg] = useState({ text: "" });
 
   const [typing, setTyping] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.typing ?? true
+    JSON.parse(localStorage.getItem("bot3"))?.typing ?? true
   );
   const [botMsg, setBotMsg] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.botMsg || {}
+    JSON.parse(localStorage.getItem("bot3"))?.botMsg || {}
   );
   const [currentQuestionType, setCurrentQuestionType] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.currentQuestionType || "intro"
+    JSON.parse(localStorage.getItem("bot3"))?.currentQuestionType || "intro"
   );
   const scrollToBottom = () => {
     ref.current.addEventListener("DOMNodeInserted", (event) => {
@@ -55,7 +58,7 @@ const SecondBot = () => {
 
   useEffect(() => {
     localStorage.setItem(
-      "bot2",
+      "bot3",
       JSON.stringify({
         questionNo,
         currentQuestionType,
@@ -67,10 +70,11 @@ const SecondBot = () => {
   }, [questionNo, currentQuestionType, botMsg, typing, modelNo]);
 
   useEffect(() => {
-    localStorage.setItem("messages2", JSON.stringify({ messages }));
+    localStorage.setItem("messages3", JSON.stringify({ messages }));
   }, [messages]);
 
   useEffect(() => {
+    setActive(true);
     if (messages.length === 0) {
       setTimeout(() => {
         socket.emit("getIntroQuestion", { questionNo });
@@ -111,21 +115,45 @@ const SecondBot = () => {
             },
           ]);
         } else {
+          setTimes(times + 1);
           setTyping(false);
-          setMessages([
-            ...messages,
-            {
-              from: "English BOT",
-              //   text: `
-              //   ${feedbackCorrection[
-              //     Math.floor(Math.random() * (feedbackCorrection.length - 1))
-              //   ].replace("{ANSWER}", `<strong>${result}</strong>`)}
-              //   `,
-              text: "Your answer is wrong 😥",
-              type: message?.type,
-              buttons: message?.buttons,
-            },
-          ]);
+          if (times >= 0 && times < 3) {
+            setMessages([
+              ...messages,
+              {
+                from: "English BOT",
+                text: retry[Math.floor(Math.random() * (retry.length - 1))],
+                type: message?.type,
+                buttons: message?.buttons,
+              },
+            ]);
+          } else if (times === 3) {
+            setMessages([
+              ...messages,
+              {
+                from: "English BOT",
+                text: after_retry[
+                  Math.floor(Math.random() * (after_retry.length - 1))
+                ],
+                type: message?.type,
+                buttons: message?.buttons,
+              },
+            ]);
+          } else {
+            setMessages([
+              ...messages,
+              {
+                from: "English BOT",
+                text: `
+                  ${feedbackCorrection[
+                    Math.floor(Math.random() * (feedbackCorrection.length - 1))
+                  ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+                  `,
+                type: message?.type,
+                buttons: message?.buttons,
+              },
+            ]);
+          }
         }
         if (!botMsg.last) {
           socket.emit("getModelQuestion", { questionNo, modelNo });
@@ -168,21 +196,25 @@ const SecondBot = () => {
       ]);
       setBotMsg({ message, last });
       if (!last) {
-        setQuestionNo(questionNo + 1);
+        if (times >= 0 && times < 4) {
+          setQuestionNo(questionNo);
+        } else {
+          setTimes(0);
+          setQuestionNo(questionNo + 1);
+        }
       } else {
         if (
-          !JSON.parse(localStorage.getItem("doneBefore2"))?.flag &&
+          !JSON.parse(localStorage.getItem("doneBefore3"))?.flag &&
           modelNo < 2
         ) {
           setModelNo(modelNo + 1);
           setQuestionNo(0);
         } else if (
-          !JSON.parse(localStorage.getItem("doneBefore2"))?.flag &&
+          !JSON.parse(localStorage.getItem("doneBefore3"))?.flag &&
           modelNo === 2 &&
           botMsg.last
         ) {
-          console.log("ELSE IF ");
-          localStorage.setItem("doneBefore2", JSON.stringify({ flag: true }));
+          localStorage.setItem("doneBefore3", JSON.stringify({ flag: true }));
           setMessages([
             ...messages,
             {
@@ -194,7 +226,6 @@ const SecondBot = () => {
           ]);
           setCurrentQuestionType("end");
         } else {
-          console.log("ELSEEE");
           setMessages([
             ...messages,
             {
@@ -218,6 +249,7 @@ const SecondBot = () => {
     currentQuestionType,
     modelNo,
     botMsg.last,
+    times,
   ]);
 
   const sendMsgSubmit = (e) => {
@@ -250,7 +282,7 @@ const SecondBot = () => {
       }, 1000);
     }
     if (currentQuestionType === "model") {
-      socket.emit("checkGrammer", { ...msg, _id: botMsg.message._id });
+      socket.emit("checkGrammer", { ...msg, _id: botMsg?.message?._id });
       setBotMsg({});
     }
     setMsg({ text: "" });
@@ -360,4 +392,4 @@ const SecondBot = () => {
   );
 };
 
-export default SecondBot;
+export default ThirdBot;

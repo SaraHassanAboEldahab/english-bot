@@ -4,12 +4,12 @@ import styled from "styled-components";
 import englishBot from "../images/english.png";
 import leftArrow from "../images/left-arrow.png";
 
-const Header = ({ active }) => {
+const Header = ({ active, setActive }) => {
   return (
     <HeaderDiv>
       <>
         {active && (
-          <Link to="/english-bot">
+          <Link to="/english-bot" onClick={() => setActive(false)}>
             <StyledBackImg src={leftArrow} alt="" />
           </Link>
         )}

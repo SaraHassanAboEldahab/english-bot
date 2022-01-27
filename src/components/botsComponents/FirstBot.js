@@ -18,7 +18,7 @@ import {
   endMessages,
 } from "./const";
 
-const FirstBot = () => {
+const FirstBot = ({ setActive }) => {
   const ref = useRef();
 
   const [questionNo, setQuestionNo] = useState(
@@ -71,6 +71,7 @@ const FirstBot = () => {
   }, [messages]);
 
   useEffect(() => {
+    setActive(true);
     if (messages.length === 0) {
       setTimeout(() => {
         socket.emit("getIntroQuestion", { questionNo });

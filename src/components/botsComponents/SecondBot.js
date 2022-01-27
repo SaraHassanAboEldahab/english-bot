@@ -19,7 +19,7 @@ import {
   feedback_wrong,
 } from "./const";
 
-const SecondBot = () => {
+const SecondBot = ({ setActive }) => {
   const ref = useRef();
 
   const [questionNo, setQuestionNo] = useState(
@@ -72,6 +72,7 @@ const SecondBot = () => {
   }, [messages]);
 
   useEffect(() => {
+    setActive(true);
     if (messages.length === 0) {
       setTimeout(() => {
         socket.emit("getIntroQuestion", { questionNo });

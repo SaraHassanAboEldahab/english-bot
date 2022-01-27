@@ -41,19 +41,20 @@ const Bot = ({ setActive }) => {
           {bots.map((bot) => (
             <StyledDetails>
               <summary>{bot.botName}</summary>
-              <p>{bot.botDescription}</p>
+              <p>
+                {bot.botDescription} , If you want to finish your previous
+                attempt, click complete, or if you want to start over, click
+                start.
+              </p>
               <FlexDiv>
                 <Link to={bot.botLink}>
-                  <StartedBtn onClick={() => setActive(true)}>
-                    Complete
-                  </StartedBtn>
+                  <StartedBtn>Complete</StartedBtn>
                 </Link>
                 <Link to={bot.botLink}>
                   <ResetBtn
                     onClick={() => {
                       localStorage.removeItem(bot.botItem);
                       localStorage.removeItem(bot.messagesItem);
-                      setActive(true);
                     }}
                   >
                     Start
@@ -101,45 +102,52 @@ const StartedBtn = styled.button`
   border: none;
   background-color: #0695d5;
   color: white;
-  padding: 15px 20px;
-  border-radius: 30px;
+  padding: 10px 20px;
+  border-radius: 12px;
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  width: 200px;
-  margin: 30px 0px 40px 0px;
+  margin: 10px 10px 10px 25px;
   transition: background-color 0.1s ease-in;
-  margin-right: 20px;
   &:hover {
-    background-color: #bc6a39;
+    background-color: #04638d;
   }
 `;
 
 const ResetBtn = styled.button`
   border: none;
-  background-color: #a00b0b;
+  background-color: #a9b1b5;
   color: white;
-  padding: 15px 20px;
-  border-radius: 30px;
+  padding: 10px 20px;
+  border-radius: 12px;
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  width: 200px;
-  margin: 30px 0px 40px 0px;
+  margin: 10px 0px;
   transition: background-color 0.1s ease-in;
+  &:hover {
+    background-color: #7f8385;
+  }
 `;
 
 const StyledDetails = styled.details`
   summary::before {
-    content: "▶️";
+    content: "▶️  ";
+  }
+  &[open] {
+    summary::before {
+      content: "🔽  ";
+    }
   }
   summary {
     cursor: pointer;
     list-style: none;
+    font-weight: bold;
+    margin-bottom: 15px;
   }
-  &[open] {
-    summary::before {
-      content: "🔽";
-    }
+  p {
+    margin: 0px 0px 0px 25px;
+    color: gray;
+    width: 50%;
   }
 `;

@@ -11,13 +11,22 @@ const App = () => {
   const [active, setActive] = useState(false);
   return (
     <>
-      <Header active={active} />
+      <Header active={active} setActive={setActive} />
       <Container>
         <Routes>
           <Route path="/english-bot" element={<Home setActive={setActive} />} />
-          <Route path="/english-bot/bot1" element={<FirstBot />} />
-          <Route path="/english-bot/bot2" element={<SecondBot />} />
-          <Route path="/english-bot/bot3" element={<ThirdBot />} />
+          <Route
+            path="/english-bot/bot1"
+            element={<FirstBot setActive={setActive} />}
+          />
+          <Route
+            path="/english-bot/bot2"
+            element={<SecondBot setActive={setActive} />}
+          />
+          <Route
+            path="/english-bot/bot3"
+            element={<ThirdBot setActive={setActive} />}
+          />
         </Routes>
       </Container>
     </>
