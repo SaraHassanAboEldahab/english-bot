@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import send from "../images/send.png";
 import { io } from "socket.io-client";
+import send from "../images/send.png";
 import botIcon from "../images/bot-icon.png";
 import Typing from "./Typing";
 import MessageWithButton from "./MessageWithButton";
@@ -320,26 +320,27 @@ const Chat = () => {
 
   return (
     <>
-      <StyledMessages ref={ref}>
-        {messages.map(({ from, text, type, buttons }, index) => (
-          <>
-            {from === "English BOT" ? (
-              <StyledBotDiv key={cuid()}>
-                <img src={botIcon} alt=" " />
+      <Content>
+        <StyledMessages ref={ref}>
+          {messages.map(({ from, text, type, buttons }, index) => (
+            <>
+              {from === "English BOT" ? (
+                <StyledBotDiv key={cuid()}>
+                  <img src={botIcon} alt=" " />
 
-                {type === "@message-type/button" ? (
-                  <MessageWithButton
-                    buttons={buttons}
-                    text={text}
-                    setMessages={setMessages}
-                    messages={messages}
-                    socket={socket}
-                    onBtnClick={onBtnClick}
-                  />
-                ) : (
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: `
+                  {type === "@message-type/button" ? (
+                    <MessageWithButton
+                      buttons={buttons}
+                      text={text}
+                      setMessages={setMessages}
+                      messages={messages}
+                      socket={socket}
+                      onBtnClick={onBtnClick}
+                    />
+                  ) : (
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: `
                     <style>
                     strong{
                       color: #74eaf4;
@@ -347,35 +348,48 @@ const Chat = () => {
                     </style>
                     <div>${text}</div>
                     `,
-                    }}
-                  ></span>
-                )}
-              </StyledBotDiv>
-            ) : (
-              <StyledMeDiv key={index}>
-                <span>{text}</span>
-              </StyledMeDiv>
-            )}
-          </>
-        ))}
-      </StyledMessages>
-      {typing && <Typing />}
-      <StyledDiv onSubmit={(e) => sendMsgSubmit(e)}>
-        <input
-          value={msg.text}
-          onChange={(e) => setMsg({ text: e.target.value })}
-          type="text"
-          placeholder="send a message..."
-        />
-        <button type="submit">
-          <img src={send} alt="" />
-        </button>
-      </StyledDiv>
+                      }}
+                    ></span>
+                  )}
+                </StyledBotDiv>
+              ) : (
+                <StyledMeDiv key={index}>
+                  <span>{text}</span>
+                </StyledMeDiv>
+              )}
+            </>
+          ))}
+        </StyledMessages>
+        {typing && <Typing />}
+        <StyledDiv onSubmit={(e) => sendMsgSubmit(e)}>
+          <input
+            value={msg.text}
+            onChange={(e) => setMsg({ text: e.target.value })}
+            type="text"
+            placeholder="send a message..."
+          />
+          <button type="submit">
+            <img src={send} alt="" />
+          </button>
+        </StyledDiv>
+      </Content>
     </>
   );
 };
 
 export default Chat;
+
+//styles
+
+const Content = styled.div`
+  margin: -70px 0px 0px 0px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: rgb(0 0 0 / 10%) 0px 4px 15px 0px,
+    rgb(0 0 0 / 10%) 0px 1px 2px 0px, rgb(32 43 57 / 50%) 0px -2px 0px 0px;
+  display: flex;
+  flex-direction: column;
+`;
 
 const StyledDiv = styled.form`
   display: flex;
