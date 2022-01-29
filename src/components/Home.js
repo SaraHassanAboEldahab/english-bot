@@ -38,8 +38,8 @@ const Bot = ({ setActive }) => {
             <span className="replyTome">🕓 Under 1 min</span>
           </div> */}
 
-          {bots.map((bot) => (
-            <StyledDetails>
+          {bots.map((bot, index) => (
+            <StyledDetails key={index}>
               <summary>{bot.botName}</summary>
               <p>
                 {bot.botDescription} , If you want to finish your previous

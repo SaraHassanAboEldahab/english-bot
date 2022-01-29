@@ -273,20 +273,14 @@ const SecondBot = ({ setActive }) => {
           },
         ]);
       } else {
-        const result = botMsg.message.buttons.find(
-          (btn) => btn.correct === true
-        )?.title;
-
         setMessages([
           ...messages,
           { from: "Me", text: message.title },
           {
             from: "English BOT",
-            text: `
-            ${feedbackCorrection[
-              Math.floor(Math.random() * (feedbackCorrection.length - 1))
-            ].replace("{ANSWER}", `<strong>${result}</strong>`)}
-            `,
+            text: feedback_wrong[
+              Math.floor(Math.random() * (feedback_wrong.length - 1))
+            ],
             type: message?.type,
             buttons: message?.buttons,
           },

@@ -114,6 +114,11 @@ const ThirdBot = ({ setActive }) => {
               buttons: message?.buttons,
             },
           ]);
+          if (!botMsg.last) {
+            socket.emit("getModelQuestion", { questionNo, modelNo });
+          } else {
+            socket.emit("getEndQuestion", {});
+          }
         } else {
           setTimes(times + 1);
           setTyping(false);
@@ -140,25 +145,28 @@ const ThirdBot = ({ setActive }) => {
               },
             ]);
           } else {
+            setTimes(0);
             setMessages([
               ...messages,
               {
                 from: "English BOT",
                 text: `
-                  ${feedbackCorrection[
-                    Math.floor(Math.random() * (feedbackCorrection.length - 1))
-                  ].replace("{ANSWER}", `<strong>${result}</strong>`)}
-                  `,
+                    ${feedbackCorrection[
+                      Math.floor(
+                        Math.random() * (feedbackCorrection.length - 1)
+                      )
+                    ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+                    `,
                 type: message?.type,
                 buttons: message?.buttons,
               },
             ]);
+            if (!botMsg.last) {
+              socket.emit("getModelQuestion", { questionNo, modelNo });
+            } else {
+              socket.emit("getEndQuestion", {});
+            }
           }
-        }
-        if (!botMsg.last) {
-          socket.emit("getModelQuestion", { questionNo, modelNo });
-        } else {
-          socket.emit("getEndQuestion", {});
         }
       });
     }
@@ -196,12 +204,7 @@ const ThirdBot = ({ setActive }) => {
       ]);
       setBotMsg({ message, last });
       if (!last) {
-        if (times >= 0 && times < 4) {
-          setQuestionNo(questionNo);
-        } else {
-          setTimes(0);
-          setQuestionNo(questionNo + 1);
-        }
+        setQuestionNo(questionNo + 1);
       } else {
         if (
           !JSON.parse(localStorage.getItem("doneBefore3"))?.flag &&
@@ -283,54 +286,86 @@ const ThirdBot = ({ setActive }) => {
     }
     if (currentQuestionType === "model") {
       socket.emit("checkGrammer", { ...msg, _id: botMsg?.message?._id });
-      setBotMsg({});
+      // setBotMsg({});
     }
     setMsg({ text: "" });
   };
 
   const onBtnClick = (message) => {
-    setMessages([...messages, { from: "Me", text: message.title }]);
-    setTimeout(() => {
+    // setMessages([...messages, { from: "Me", text: message.title }]);
+    let _messages = [...messages, { from: "Me", text: message.title }];
+    // setTimeout(() => {
+    setTyping(false);
+    if (message.correct === true) {
+      setMessages([
+        ..._messages,
+        { from: "Me", text: message.title },
+        {
+          from: "English BOT",
+          text: feedbackRight[
+            Math.floor(Math.random() * (feedbackRight.length - 1))
+          ],
+          type: message?.type,
+          buttons: message?.buttons,
+        },
+      ]);
+      if (!botMsg.last) {
+        socket.emit("getModelQuestion", { questionNo, modelNo });
+      } else {
+        socket.emit("getEndQuestion", {});
+      }
+    } else {
+      setTimes(times + 1);
       setTyping(false);
-      if (message.correct === true) {
+      if (times >= 0 && times < 3) {
         setMessages([
-          ...messages,
-          { from: "Me", text: message.title },
+          ..._messages,
           {
             from: "English BOT",
-            text: feedbackRight[
-              Math.floor(Math.random() * (feedbackRight.length - 1))
+            text: retry[Math.floor(Math.random() * (retry.length - 1))],
+            type: message?.type,
+            buttons: message?.buttons,
+          },
+        ]);
+      } else if (times === 3) {
+        setMessages([
+          ..._messages,
+          {
+            from: "English BOT",
+            text: after_retry[
+              Math.floor(Math.random() * (after_retry.length - 1))
             ],
             type: message?.type,
             buttons: message?.buttons,
           },
         ]);
       } else {
+        setTimes(0);
         const result = botMsg.message.buttons.find(
           (btn) => btn.correct === true
         )?.title;
-
         setMessages([
-          ...messages,
+          ..._messages,
           { from: "Me", text: message.title },
           {
             from: "English BOT",
             text: `
-            ${feedbackCorrection[
-              Math.floor(Math.random() * (feedbackCorrection.length - 1))
-            ].replace("{ANSWER}", `<strong>${result}</strong>`)}
-            `,
+                ${feedbackCorrection[
+                  Math.floor(Math.random() * (feedbackCorrection.length - 1))
+                ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+                `,
             type: message?.type,
             buttons: message?.buttons,
           },
         ]);
+        if (!botMsg.last) {
+          socket.emit("getModelQuestion", { questionNo, modelNo });
+        } else {
+          socket.emit("getEndQuestion", {});
+        }
       }
-      if (!botMsg.last) {
-        socket.emit("getModelQuestion", { questionNo, modelNo });
-      } else {
-        socket.emit("getEndQuestion", {});
-      }
-    }, 1000);
+    }
+    // }, 1000);
   };
 
   return (
