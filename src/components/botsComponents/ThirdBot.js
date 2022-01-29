@@ -108,7 +108,6 @@ const ThirdBot = ({ setActive }) => {
           message?.toLowerCase().replace(/\ /g, "") ===
             result?.toLocaleLowerCase().replace(/\ /g, "")
         ) {
-          setTyping(false);
           setMessages([
             ...messages,
             {
@@ -127,7 +126,6 @@ const ThirdBot = ({ setActive }) => {
           }
         } else {
           setTimes(times + 1);
-          setTyping(false);
           if (times >= 0 && times < 3) {
             setMessages([
               ...messages,
@@ -167,11 +165,16 @@ const ThirdBot = ({ setActive }) => {
                 buttons: message?.buttons,
               },
             ]);
-            if (!botMsg.last) {
-              socket.emit("getModelQuestion", { questionNo, modelNo });
-            } else {
-              socket.emit("getEndQuestion", {});
-            }
+            setTimeout(()=>{
+     
+              if (!botMsg.last) {
+                
+                socket.emit("getModelQuestion", { questionNo, modelNo });
+              } else {
+                socket.emit("getEndQuestion", {});
+              }
+              setTyping(false);
+            },1000)
           }
         }
       });

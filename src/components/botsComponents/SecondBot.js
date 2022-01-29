@@ -100,7 +100,6 @@ const SecondBot = ({ setActive }) => {
           message?.toLowerCase().replace(/\ /g, "") ===
             result?.toLocaleLowerCase().replace(/\ /g, "")
         ) {
-          setTyping(false);
           setMessages([
             ...messages,
             {
@@ -113,7 +112,7 @@ const SecondBot = ({ setActive }) => {
             },
           ]);
         } else {
-          setTyping(false);
+      
           setMessages([
             ...messages,
             {
@@ -126,11 +125,16 @@ const SecondBot = ({ setActive }) => {
             },
           ]);
         }
-        if (!botMsg.last) {
-          socket.emit("getModelQuestion", { questionNo, modelNo });
-        } else {
-          socket.emit("getEndQuestion", {});
-        }
+        setTimeout(()=>{
+     
+          if (!botMsg.last) {
+            
+            socket.emit("getModelQuestion", { questionNo, modelNo });
+          } else {
+            socket.emit("getEndQuestion", {});
+          }
+          setTyping(false);
+        },1000)
       });
     }
 

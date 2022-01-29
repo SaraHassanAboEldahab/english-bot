@@ -97,6 +97,7 @@ const FirstBot = ({ setActive }) => {
 
   useEffect(() => {
     if (currentQuestionType === "model") {
+  
       socket.off("checkGrammerResult");
       socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
         const { result, corrections } = checkResult;
@@ -105,7 +106,7 @@ const FirstBot = ({ setActive }) => {
           message?.toLowerCase().replace(/\ /g, "") ===
             result?.toLocaleLowerCase().replace(/\ /g, "")
         ) {
-          setTyping(false);
+        
           setMessages([
             ...messages,
             {
@@ -118,7 +119,7 @@ const FirstBot = ({ setActive }) => {
             },
           ]);
         } else {
-          setTyping(false);
+
           setMessages([
             ...messages,
             {
@@ -132,12 +133,18 @@ const FirstBot = ({ setActive }) => {
               buttons: message?.buttons,
             },
           ]);
-        }
-        if (!botMsg.last) {
-          socket.emit("getModelQuestion", { questionNo, modelNo });
-        } else {
-          socket.emit("getEndQuestion", {});
-        }
+        }  
+          setTimeout(()=>{
+     
+          if (!botMsg.last) {
+            
+            socket.emit("getModelQuestion", { questionNo, modelNo });
+          } else {
+            socket.emit("getEndQuestion", {});
+          }
+          setTyping(false);
+        },1000)
+       
       });
     }
 
