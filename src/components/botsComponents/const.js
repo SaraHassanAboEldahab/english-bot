@@ -34,13 +34,13 @@ export const endMessages = [
 ];
 
 export const feedback_wrong = [
-  "You are wrong ☺️",
-  "false ☺️",
-  "Incorrect answer",
-  "Sorry , wrong ☺️",
-  "bad 🥳😔🤬",
-  "That’s wrong answer 🥳😔🤬",
-  "Sad",
+  "You are wrong ☺️, the right answer is {ANSWER}",
+  "false ☺️ , the right answer is {ANSWER}",
+  "Incorrect answer , the right answer is {ANSWER}",
+  "Sorry , wrong ☺️ , the right answer is {ANSWER}",
+  "bad 🥳😔🤬 , the right answer is {ANSWER}",
+  "That’s wrong answer 🥳😔🤬 , the right answer is {ANSWER}",
+  "Sad , the right answer is {ANSWER}",
 ];
 
 export const retry = [

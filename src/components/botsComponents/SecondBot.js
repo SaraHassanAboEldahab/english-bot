@@ -118,9 +118,9 @@ const SecondBot = ({ setActive }) => {
             ...messages,
             {
               from: "English BOT",
-              text: feedback_wrong[
+              text: `  ${feedback_wrong[
                 Math.floor(Math.random() * (feedback_wrong.length - 1))
-              ],
+              ].replace("{ANSWER}", `<strong>${result}</strong>`)}`,
               type: message?.type,
               buttons: message?.buttons,
             },
