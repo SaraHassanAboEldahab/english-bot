@@ -71,6 +71,12 @@ const ThirdBot = ({ setActive }) => {
 
   useEffect(() => {
     localStorage.setItem("messages3", JSON.stringify({ messages }));
+    if (messages?.[messages.length - 1]?.from === "English BOT") {
+      const audio = new Audio(
+        "https://english-bot-test.herokuapp.com/assets/elegant-notification-sound.mp3"
+      );
+      audio.play();
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -211,6 +217,7 @@ const ThirdBot = ({ setActive }) => {
           modelNo < 2
         ) {
           setModelNo(modelNo + 1);
+          setBotMsg({ ...botMsg, last: false });
           setQuestionNo(0);
         } else if (
           !JSON.parse(localStorage.getItem("doneBefore3"))?.flag &&
@@ -228,6 +235,7 @@ const ThirdBot = ({ setActive }) => {
             },
           ]);
           setCurrentQuestionType("end");
+          setTyping(false);
         } else {
           setMessages([
             ...messages,
@@ -292,7 +300,6 @@ const ThirdBot = ({ setActive }) => {
   };
 
   const onBtnClick = (message) => {
-    // setMessages([...messages, { from: "Me", text: message.title }]);
     let _messages = [...messages, { from: "Me", text: message.title }];
     // setTimeout(() => {
     setTyping(false);

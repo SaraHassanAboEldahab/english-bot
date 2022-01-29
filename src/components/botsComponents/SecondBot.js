@@ -11,13 +11,7 @@ import {
   StyledBotDiv,
   StyledMeDiv,
 } from "./styles";
-import {
-  socket,
-  feedbackCorrection,
-  feedbackRight,
-  endMessages,
-  feedback_wrong,
-} from "./const";
+import { socket, feedbackRight, endMessages, feedback_wrong } from "./const";
 
 const SecondBot = ({ setActive }) => {
   const ref = useRef();
@@ -69,6 +63,12 @@ const SecondBot = ({ setActive }) => {
 
   useEffect(() => {
     localStorage.setItem("messages2", JSON.stringify({ messages }));
+    if (messages?.[messages.length - 1]?.from === "English BOT") {
+      const audio = new Audio(
+        "https://english-bot-test.herokuapp.com/assets/elegant-notification-sound.mp3"
+      );
+      audio.play();
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -174,13 +174,13 @@ const SecondBot = ({ setActive }) => {
           modelNo < 2
         ) {
           setModelNo(modelNo + 1);
+          setBotMsg({ ...botMsg, last: false });
           setQuestionNo(0);
         } else if (
           !JSON.parse(localStorage.getItem("doneBefore2"))?.flag &&
           modelNo === 2 &&
           botMsg.last
         ) {
-          console.log("ELSE IF ");
           localStorage.setItem("doneBefore2", JSON.stringify({ flag: true }));
           setMessages([
             ...messages,
@@ -192,8 +192,8 @@ const SecondBot = ({ setActive }) => {
             },
           ]);
           setCurrentQuestionType("end");
+          setTyping(false);
         } else {
-          console.log("ELSEEE");
           setMessages([
             ...messages,
             {

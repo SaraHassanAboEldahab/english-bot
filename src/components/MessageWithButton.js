@@ -30,9 +30,8 @@ const Card = styled.div`
 `;
 const StyledH3 = styled.h3`
   margin: 0px;
-  /* background-color: #9b9b9b; */
   background-color: #0073a5;
-  padding: 20px 0px;
+  padding: 20px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   color: white;

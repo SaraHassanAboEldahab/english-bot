@@ -68,6 +68,12 @@ const FirstBot = ({ setActive }) => {
 
   useEffect(() => {
     localStorage.setItem("messages1", JSON.stringify({ messages }));
+    if (messages?.[messages.length - 1]?.from === "English BOT") {
+      const audio = new Audio(
+        "https://english-bot-test.herokuapp.com/assets/elegant-notification-sound.mp3"
+      );
+      audio.play();
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -175,13 +181,13 @@ const FirstBot = ({ setActive }) => {
           modelNo < 2
         ) {
           setModelNo(modelNo + 1);
+          setBotMsg({ ...botMsg, last: false });
           setQuestionNo(0);
         } else if (
           !JSON.parse(localStorage.getItem("doneBefore1"))?.flag &&
           modelNo === 2 &&
           botMsg.last
         ) {
-          console.log("ELSE IF ");
           localStorage.setItem("doneBefore1", JSON.stringify({ flag: true }));
           setMessages([
             ...messages,
@@ -193,8 +199,8 @@ const FirstBot = ({ setActive }) => {
             },
           ]);
           setCurrentQuestionType("end");
+          setTyping(false);
         } else {
-          console.log("ELSEEE");
           setMessages([
             ...messages,
             {
