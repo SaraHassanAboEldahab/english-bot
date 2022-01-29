@@ -127,6 +127,7 @@ const SecondBot = ({ setActive }) => {
         }
         setTimeout(()=>{
      
+       
           if (!botMsg.last) {
             
             socket.emit("getModelQuestion", { questionNo, modelNo });
@@ -134,7 +135,7 @@ const SecondBot = ({ setActive }) => {
             socket.emit("getEndQuestion", {});
           }
           setTyping(false);
-        },1000)
+        },4000)
       });
     }
 

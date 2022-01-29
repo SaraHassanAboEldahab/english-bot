@@ -143,7 +143,7 @@ const FirstBot = ({ setActive }) => {
             socket.emit("getEndQuestion", {});
           }
           setTyping(false);
-        },1000)
+        },4000)
        
       });
     }

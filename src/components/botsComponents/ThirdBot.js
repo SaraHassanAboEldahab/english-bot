@@ -166,15 +166,15 @@ const ThirdBot = ({ setActive }) => {
               },
             ]);
             setTimeout(()=>{
-     
+      
               if (!botMsg.last) {
-                
+            
                 socket.emit("getModelQuestion", { questionNo, modelNo });
               } else {
                 socket.emit("getEndQuestion", {});
               }
               setTyping(false);
-            },1000)
+            },4000)
           }
         }
       });
