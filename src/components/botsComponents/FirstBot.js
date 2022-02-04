@@ -311,7 +311,7 @@ const FirstBot = ({ setActive }) => {
       } else {
         socket.emit("getEndQuestion", {});
       }
-    }, 1000);
+    }, 2000);
   };
 
   return (
