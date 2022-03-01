@@ -4,7 +4,7 @@ export const socket = io("wss://english-bot-test.herokuapp.com/");
 
 // eslint-disable-next-line no-sparse-arrays
 export const feedbackCorrection = [
-  "You are too close , but the write answer is {ANSWER}",
+  "You are too close , but the right answer is {ANSWER}",
   "The correct answer is {ANSWER}",
   "{ANSWER} this is the correct",
   " Oh sorry , the write answer is {ANSWER}",
@@ -25,21 +25,21 @@ export const endMessages = [
   " It was nice to see you again🙋‍♀️",
   "Take care",
   "I look forward to our next dialogue",
-  "Good bye",
+  "Good bye 😇",
   "Bye bye!👋",
   "Have a nice day",
-  "Goodnight",
+  "Goodnight 😇",
   "I’m out of here",
   "🥳",
 ];
 
 export const feedback_wrong = [
-  "You are wrong ☺️",
-  "false ☺️ ",
+  "You are wrong ☹️",
+  "false ☹️ ",
   "Incorrect answer ",
-  "Sorry , wrong ☺️ ",
-  "bad 🥳😔🤬 ",
-  "That’s wrong answer 🥳😔🤬 ",
+  "Sorry , wrong 😡 ",
+  "bad ☹️ ",
+  "That’s wrong answer 😠 ",
   "Sad ",
 ];
 
