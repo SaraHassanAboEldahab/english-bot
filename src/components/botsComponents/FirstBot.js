@@ -47,7 +47,7 @@ const FirstBot = ({ setActive }) => {
     JSON.parse(localStorage.getItem("bot1"))?.currentQuestionType || "intro"
   );
   const scrollToBottom = () => {
-    ref.current.addEventListener("DOMNodeInserted", (event) => {
+    ref?.current?.addEventListener("DOMNodeInserted", (event) => {
       const { currentTarget: target } = event;
       target.scroll({ top: target.scrollHeight, behavior: "smooth" });
     });
@@ -74,6 +74,7 @@ const FirstBot = ({ setActive }) => {
       );
       audio.play();
     }
+    scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
@@ -97,7 +98,6 @@ const FirstBot = ({ setActive }) => {
 
   useEffect(() => {
     if (currentQuestionType === "model") {
-  
       socket.off("checkGrammerResult");
       socket.on("checkGrammerResult", ({ message, result: checkResult }) => {
         const { result, corrections } = checkResult;
@@ -106,7 +106,6 @@ const FirstBot = ({ setActive }) => {
           message?.toLowerCase().replace(/\ /g, "") ===
             result?.toLocaleLowerCase().replace(/\ /g, "")
         ) {
-        
           setMessages([
             ...messages,
             {
@@ -119,7 +118,6 @@ const FirstBot = ({ setActive }) => {
             },
           ]);
         } else {
-
           setMessages([
             ...messages,
             {
@@ -133,18 +131,15 @@ const FirstBot = ({ setActive }) => {
               buttons: message?.buttons,
             },
           ]);
-        }  
-          setTimeout(()=>{
-     
+        }
+        setTimeout(() => {
           if (!botMsg.last) {
-            
             socket.emit("getModelQuestion", { questionNo, modelNo });
           } else {
             socket.emit("getEndQuestion", {});
           }
           setTyping(false);
-        },4000)
-       
+        }, 4000);
       });
     }
 
@@ -223,15 +218,7 @@ const FirstBot = ({ setActive }) => {
 
       setTyping(false);
     });
-    scrollToBottom();
-  }, [
-    messages,
-    questionNo,
-    msg.text,
-    currentQuestionType,
-    modelNo,
-    botMsg.last,
-  ]);
+  }, [messages, questionNo, currentQuestionType, modelNo, botMsg.last, botMsg]);
 
   const sendMsgSubmit = (e) => {
     e.preventDefault();
@@ -266,6 +253,7 @@ const FirstBot = ({ setActive }) => {
       socket.emit("checkGrammer", { ...msg, _id: botMsg.message._id });
       setBotMsg({});
     }
+    console.log("test");
     setMsg({ text: "" });
   };
 
@@ -359,8 +347,12 @@ const FirstBot = ({ setActive }) => {
         {typing && <Typing />}
         <StyledForm onSubmit={(e) => sendMsgSubmit(e)}>
           <input
-            value={msg.text}
-            onChange={(e) => setMsg({ text: e.target.value })}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                setMsg({ text: e.target.value });
+                e.target.value = "";
+              }
+            }}
             type="text"
             placeholder="send a message..."
           />

@@ -50,7 +50,7 @@ const ThirdBot = ({ setActive }) => {
     JSON.parse(localStorage.getItem("bot3"))?.currentQuestionType || "intro"
   );
   const scrollToBottom = () => {
-    ref.current.addEventListener("DOMNodeInserted", (event) => {
+    ref?.current?.addEventListener("DOMNodeInserted", (event) => {
       const { currentTarget: target } = event;
       target.scroll({ top: target.scrollHeight, behavior: "smooth" });
     });
@@ -77,6 +77,7 @@ const ThirdBot = ({ setActive }) => {
       );
       audio.play();
     }
+    scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
@@ -165,16 +166,14 @@ const ThirdBot = ({ setActive }) => {
                 buttons: message?.buttons,
               },
             ]);
-            setTimeout(()=>{
-      
+            setTimeout(() => {
               if (!botMsg.last) {
-            
                 socket.emit("getModelQuestion", { questionNo, modelNo });
               } else {
                 socket.emit("getEndQuestion", {});
               }
               setTyping(false);
-            },4000)
+            }, 4000);
           }
         }
       });
@@ -255,15 +254,14 @@ const ThirdBot = ({ setActive }) => {
 
       setTyping(false);
     });
-    scrollToBottom();
   }, [
     messages,
     questionNo,
-    msg.text,
     currentQuestionType,
     modelNo,
     botMsg.last,
     times,
+    botMsg,
   ]);
 
   const sendMsgSubmit = (e) => {
@@ -423,8 +421,12 @@ const ThirdBot = ({ setActive }) => {
         {typing && <Typing />}
         <StyledForm onSubmit={(e) => sendMsgSubmit(e)}>
           <input
-            value={msg.text}
-            onChange={(e) => setMsg({ text: e.target.value })}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                setMsg({ text: e.target.value });
+                e.target.value = "";
+              }
+            }}
             type="text"
             placeholder="send a message..."
           />

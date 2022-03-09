@@ -42,7 +42,7 @@ const SecondBot = ({ setActive }) => {
     JSON.parse(localStorage.getItem("bot2"))?.currentQuestionType || "intro"
   );
   const scrollToBottom = () => {
-    ref.current.addEventListener("DOMNodeInserted", (event) => {
+    ref?.current?.addEventListener("DOMNodeInserted", (event) => {
       const { currentTarget: target } = event;
       target.scroll({ top: target.scrollHeight, behavior: "smooth" });
     });
@@ -69,6 +69,7 @@ const SecondBot = ({ setActive }) => {
       );
       audio.play();
     }
+    scrollToBottom();
   }, [messages]);
 
   useEffect(() => {
@@ -112,7 +113,6 @@ const SecondBot = ({ setActive }) => {
             },
           ]);
         } else {
-      
           setMessages([
             ...messages,
             {
@@ -128,20 +128,17 @@ const SecondBot = ({ setActive }) => {
               text: `the right answer is <strong>${result}</strong>`,
               type: message?.type,
               buttons: message?.buttons,
-            }
+            },
           ]);
         }
-        setTimeout(()=>{
-     
-       
+        setTimeout(() => {
           if (!botMsg.last) {
-            
             socket.emit("getModelQuestion", { questionNo, modelNo });
           } else {
             socket.emit("getEndQuestion", {});
           }
           setTyping(false);
-        },4000)
+        }, 4000);
       });
     }
 
@@ -220,15 +217,7 @@ const SecondBot = ({ setActive }) => {
 
       setTyping(false);
     });
-    scrollToBottom();
-  }, [
-    messages,
-    questionNo,
-    msg.text,
-    currentQuestionType,
-    modelNo,
-    botMsg.last,
-  ]);
+  }, [messages, questionNo, currentQuestionType, modelNo, botMsg.last, botMsg]);
 
   const sendMsgSubmit = (e) => {
     e.preventDefault();
@@ -304,8 +293,7 @@ const SecondBot = ({ setActive }) => {
             text: `the right answer is <strong>${result}</strong>`,
             type: message?.type,
             buttons: message?.buttons,
-          }
-          
+          },
         ]);
       }
       if (!botMsg.last) {
@@ -361,8 +349,12 @@ const SecondBot = ({ setActive }) => {
         {typing && <Typing />}
         <StyledForm onSubmit={(e) => sendMsgSubmit(e)}>
           <input
-            value={msg.text}
-            onChange={(e) => setMsg({ text: e.target.value })}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                setMsg({ text: e.target.value });
+                e.target.value = "";
+              }
+            }}
             type="text"
             placeholder="send a message..."
           />
