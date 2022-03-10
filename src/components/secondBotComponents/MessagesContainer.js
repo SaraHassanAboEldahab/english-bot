@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import botIcon from "../../images/bot-icon.png";
 import MessageWithButton from "../shared/MessageWithButton";
 import cuid from "cuid";
@@ -101,14 +101,12 @@ const SecondBot = ({
             },
           ]);
         }
-        setTimeout(() => {
-          if (!botMsg.last) {
-            socket.emit("getModelQuestion", { questionNo, modelNo });
-          } else {
-            socket.emit("getEndQuestion", {});
-          }
-          setTyping(false);
-        }, 4000);
+        if (!botMsg.last) {
+          setTyping(true);
+          socket.emit("getModelQuestion", { questionNo, modelNo });
+        } else {
+          socket.emit("getEndQuestion", {});
+        }
       });
     }
 
@@ -184,7 +182,6 @@ const SecondBot = ({
           setCurrentQuestionType("end");
         }
       }
-
       setTyping(false);
     });
   }, [
@@ -204,6 +201,7 @@ const SecondBot = ({
 
   const onBtnClick = (message) => {
     setMessages([...messages, { from: "Me", text: message.title }]);
+    setTyping(true);
     setTimeout(() => {
       setTyping(false);
       if (message.correct === true) {
@@ -244,6 +242,7 @@ const SecondBot = ({
         ]);
       }
       if (!botMsg.last) {
+        setTyping(true);
         socket.emit("getModelQuestion", { questionNo, modelNo });
       } else {
         socket.emit("getEndQuestion", {});

@@ -46,8 +46,11 @@ const FormContainer = ({
       }, 1000);
     }
     if (currentQuestionType === "model") {
+      setTyping(true);
       socket.emit("checkGrammer", { ...msg, _id: botMsg.message._id });
       // setBotMsg({});
+    } else {
+      setTyping(false);
     }
     setMsg({ text: "" });
   };

@@ -1,16 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import send from "../../images/send.png";
 import botIcon from "../../images/bot-icon.png";
-import Typing from "../shared/Typing";
 import MessageWithButton from "../shared/MessageWithButton";
 import cuid from "cuid";
-import {
-  Content,
-  StyledForm,
-  StyledMessages,
-  StyledBotDiv,
-  StyledMeDiv,
-} from "../shared/styles";
+import { StyledMessages, StyledBotDiv, StyledMeDiv } from "../shared/styles";
 import {
   socket,
   feedbackCorrection,
@@ -95,6 +87,7 @@ const ThirdBot = ({
             },
           ]);
           if (!botMsg.last) {
+            setTyping(true);
             socket.emit("getModelQuestion", { questionNo, modelNo });
           } else {
             socket.emit("getEndQuestion", {});
@@ -142,14 +135,12 @@ const ThirdBot = ({
                 buttons: message?.buttons,
               },
             ]);
-            setTimeout(() => {
-              if (!botMsg.last) {
-                socket.emit("getModelQuestion", { questionNo, modelNo });
-              } else {
-                socket.emit("getEndQuestion", {});
-              }
-              setTyping(false);
-            }, 4000);
+            if (!botMsg.last) {
+              setTyping(true);
+              socket.emit("getModelQuestion", { questionNo, modelNo });
+            } else {
+              socket.emit("getEndQuestion", {});
+            }
           }
         }
       });
@@ -248,12 +239,13 @@ const ThirdBot = ({
 
   const onBtnClick = (message) => {
     let _messages = [...messages, { from: "Me", text: message.title }];
+    setMessages([...messages, { from: "Me", text: message.title }]);
+    setTyping(true);
     setTimeout(() => {
       setTyping(false);
       if (message.correct === true) {
         setMessages([
           ..._messages,
-          // { from: "Me", text: message.title },
           {
             from: "English BOT",
             text: feedbackRight[
@@ -263,6 +255,7 @@ const ThirdBot = ({
             buttons: message?.buttons,
           },
         ]);
+        setTyping(true);
         if (!botMsg.last) {
           socket.emit("getModelQuestion", { questionNo, modelNo });
         } else {
@@ -281,6 +274,7 @@ const ThirdBot = ({
               buttons: message?.buttons,
             },
           ]);
+          setTyping(false);
         } else if (times === 3) {
           setMessages([
             ..._messages,
@@ -293,6 +287,7 @@ const ThirdBot = ({
               buttons: message?.buttons,
             },
           ]);
+          setTyping(false);
         } else {
           setTimes(0);
           const result = botMsg.message.buttons.find(
@@ -313,6 +308,7 @@ const ThirdBot = ({
             },
           ]);
           if (!botMsg.last) {
+            setTyping(true);
             socket.emit("getModelQuestion", { questionNo, modelNo });
           } else {
             socket.emit("getEndQuestion", {});

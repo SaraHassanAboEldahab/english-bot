@@ -97,14 +97,12 @@ const MessagesContainer = ({
             },
           ]);
         }
-        setTimeout(() => {
-          if (!botMsg.last) {
-            socket.emit("getModelQuestion", { questionNo, modelNo });
-          } else {
-            socket.emit("getEndQuestion", {});
-          }
-          setTyping(false);
-        }, 4000);
+        if (!botMsg.last) {
+          setTyping(true);
+          socket.emit("getModelQuestion", { questionNo, modelNo });
+        } else {
+          socket.emit("getEndQuestion", {});
+        }
       });
     }
 
@@ -200,6 +198,7 @@ const MessagesContainer = ({
 
   const onBtnClick = (message) => {
     setMessages([...messages, { from: "Me", text: message.title }]);
+    setTyping(true);
     setTimeout(() => {
       setTyping(false);
       if (message.correct === true) {
@@ -236,11 +235,12 @@ const MessagesContainer = ({
         ]);
       }
       if (!botMsg.last) {
+        setTyping(true);
         socket.emit("getModelQuestion", { questionNo, modelNo });
       } else {
         socket.emit("getEndQuestion", {});
       }
-    }, 2000);
+    }, 1000);
   };
 
   return (
