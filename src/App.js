@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Home from "./components/Home";
 import Header from "./components/Header";
-import FirstBot from "./components/botsComponents/FirstBot";
-import SecondBot from "./components/botsComponents/SecondBot";
-import ThirdBot from "./components/botsComponents/ThirdBot";
+import FirstBot from "./components/firstBotComponents/FirstBot";
+import SecondBot from "./components/secondBotComponents/SecondBot";
+import ThirdBot from "./components/thirdBotComponents/ThirdBot";
 import { Routes, Route } from "react-router-dom";
 import styled from "styled-components";
 
