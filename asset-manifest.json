@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/english-bot/static/css/main.1ebe2127.chunk.css",
-    "main.js": "/english-bot/static/js/main.bcac981e.chunk.js",
-    "main.js.map": "/english-bot/static/js/main.bcac981e.chunk.js.map",
+    "main.js": "/english-bot/static/js/main.fdde1010.chunk.js",
+    "main.js.map": "/english-bot/static/js/main.fdde1010.chunk.js.map",
     "runtime-main.js": "/english-bot/static/js/runtime-main.79f0191f.js",
     "runtime-main.js.map": "/english-bot/static/js/runtime-main.79f0191f.js.map",
-    "static/js/2.65c3965b.chunk.js": "/english-bot/static/js/2.65c3965b.chunk.js",
-    "static/js/2.65c3965b.chunk.js.map": "/english-bot/static/js/2.65c3965b.chunk.js.map",
+    "static/js/2.a4fe97e7.chunk.js": "/english-bot/static/js/2.a4fe97e7.chunk.js",
+    "static/js/2.a4fe97e7.chunk.js.map": "/english-bot/static/js/2.a4fe97e7.chunk.js.map",
     "index.html": "/english-bot/index.html",
     "static/css/main.1ebe2127.chunk.css.map": "/english-bot/static/css/main.1ebe2127.chunk.css.map",
-    "static/js/2.65c3965b.chunk.js.LICENSE.txt": "/english-bot/static/js/2.65c3965b.chunk.js.LICENSE.txt",
+    "static/js/2.a4fe97e7.chunk.js.LICENSE.txt": "/english-bot/static/js/2.a4fe97e7.chunk.js.LICENSE.txt",
     "static/media/bot-icon.cfbb308b.png": "/english-bot/static/media/bot-icon.cfbb308b.png",
     "static/media/english.9c170a25.png": "/english-bot/static/media/english.9c170a25.png",
     "static/media/left-arrow.903af5d7.png": "/english-bot/static/media/left-arrow.903af5d7.png",
@@ -17,8 +17,8 @@
   },
   "entrypoints": [
     "static/js/runtime-main.79f0191f.js",
-    "static/js/2.65c3965b.chunk.js",
+    "static/js/2.a4fe97e7.chunk.js",
     "static/css/main.1ebe2127.chunk.css",
-    "static/js/main.bcac981e.chunk.js"
+    "static/js/main.fdde1010.chunk.js"
   ]
 }
