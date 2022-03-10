@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import send from "../../images/send.png";
 import botIcon from "../../images/bot-icon.png";
-import Typing from "../Typing";
-import MessageWithButton from "../MessageWithButton";
+import Typing from "../shared/Typing";
+import MessageWithButton from "../shared/MessageWithButton";
 import cuid from "cuid";
 import {
   Content,
@@ -10,7 +10,7 @@ import {
   StyledMessages,
   StyledBotDiv,
   StyledMeDiv,
-} from "./styles";
+} from "../shared/styles";
 import {
   socket,
   feedbackCorrection,
@@ -18,56 +18,31 @@ import {
   endMessages,
   retry,
   after_retry,
-} from "./const";
+} from "../shared/const";
 
-const ThirdBot = ({ setActive }) => {
+const ThirdBot = ({
+  questionNo,
+  currentQuestionType,
+  botMsg,
+  modelNo,
+  messages,
+  setTyping,
+  setQuestionNo,
+  setMessages,
+  setBotMsg,
+  setModelNo,
+  setCurrentQuestionType,
+}) => {
+  const [times, setTimes] = useState(0);
+
   const ref = useRef();
 
-  const [times, setTimes] = useState(0);
-  const [questionNo, setQuestionNo] = useState(
-    JSON.parse(localStorage.getItem("bot3"))?.questionNo || 0
-  );
-  const [modelNo, setModelNo] = useState(
-    JSON.parse(localStorage.getItem("bot3"))?.modelNo ??
-      (JSON.parse(localStorage.getItem("doneBefore3"))?.flag
-        ? Math.floor(Math.random() * 3)
-        : 0)
-  );
-
-  const [messages, setMessages] = useState(
-    JSON.parse(localStorage.getItem("messages3"))?.messages || []
-  );
-
-  const [msg, setMsg] = useState({ text: "" });
-
-  const [typing, setTyping] = useState(
-    JSON.parse(localStorage.getItem("bot3"))?.typing ?? true
-  );
-  const [botMsg, setBotMsg] = useState(
-    JSON.parse(localStorage.getItem("bot3"))?.botMsg || {}
-  );
-  const [currentQuestionType, setCurrentQuestionType] = useState(
-    JSON.parse(localStorage.getItem("bot3"))?.currentQuestionType || "intro"
-  );
   const scrollToBottom = () => {
     ref?.current?.addEventListener("DOMNodeInserted", (event) => {
       const { currentTarget: target } = event;
       target.scroll({ top: target.scrollHeight, behavior: "smooth" });
     });
   };
-
-  useEffect(() => {
-    localStorage.setItem(
-      "bot3",
-      JSON.stringify({
-        questionNo,
-        currentQuestionType,
-        botMsg,
-        typing,
-        modelNo,
-      })
-    );
-  }, [questionNo, currentQuestionType, botMsg, typing, modelNo]);
 
   useEffect(() => {
     localStorage.setItem("messages3", JSON.stringify({ messages }));
@@ -81,7 +56,6 @@ const ThirdBot = ({ setActive }) => {
   }, [messages]);
 
   useEffect(() => {
-    setActive(true);
     if (messages.length === 0) {
       setTimeout(() => {
         socket.emit("getIntroQuestion", { questionNo });
@@ -137,6 +111,7 @@ const ThirdBot = ({ setActive }) => {
                 buttons: message?.buttons,
               },
             ]);
+            setTyping(false);
           } else if (times === 3) {
             setMessages([
               ...messages,
@@ -149,6 +124,7 @@ const ThirdBot = ({ setActive }) => {
                 buttons: message?.buttons,
               },
             ]);
+            setTyping(false);
           } else {
             setTimes(0);
             setMessages([
@@ -262,106 +238,27 @@ const ThirdBot = ({ setActive }) => {
     botMsg.last,
     times,
     botMsg,
+    setMessages,
+    setTyping,
+    setBotMsg,
+    setQuestionNo,
+    setModelNo,
+    setCurrentQuestionType,
   ]);
-
-  const sendMsgSubmit = (e) => {
-    e.preventDefault();
-    setMessages([...messages, { from: "Me", text: msg.text }]);
-    setTyping(true);
-    if (
-      botMsg?.message?.response?.length > 0 &&
-      currentQuestionType === "intro"
-    ) {
-      setTimeout(() => {
-        const response =
-          botMsg.message.response[
-            Math.floor(Math.random() * (botMsg.message.response.length - 1))
-          ];
-        setMessages([
-          ...messages,
-          { from: "Me", text: msg.text },
-          { from: "English BOT", text: response },
-        ]);
-        if (!botMsg.last) {
-          setTyping(true);
-          socket.emit("getIntroQuestion", { questionNo });
-        } else {
-          setCurrentQuestionType("model");
-          setQuestionNo(0);
-          setBotMsg({});
-          socket.emit("getModelQuestion", { questionNo, modelNo });
-        }
-      }, 1000);
-    }
-    if (currentQuestionType === "model") {
-      socket.emit("checkGrammer", { ...msg, _id: botMsg?.message?._id });
-      // setBotMsg({});
-    }
-    setMsg({ text: "" });
-  };
 
   const onBtnClick = (message) => {
     let _messages = [...messages, { from: "Me", text: message.title }];
-    // setTimeout(() => {
-    setTyping(false);
-    if (message.correct === true) {
-      setMessages([
-        ..._messages,
-        { from: "Me", text: message.title },
-        {
-          from: "English BOT",
-          text: feedbackRight[
-            Math.floor(Math.random() * (feedbackRight.length - 1))
-          ],
-          type: message?.type,
-          buttons: message?.buttons,
-        },
-      ]);
-      if (!botMsg.last) {
-        socket.emit("getModelQuestion", { questionNo, modelNo });
-      } else {
-        socket.emit("getEndQuestion", {});
-      }
-    } else {
-      setTimes(times + 1);
+    setTimeout(() => {
       setTyping(false);
-      if (times >= 0 && times < 3) {
+      if (message.correct === true) {
         setMessages([
           ..._messages,
+          // { from: "Me", text: message.title },
           {
             from: "English BOT",
-            text: retry[Math.floor(Math.random() * (retry.length - 1))],
-            type: message?.type,
-            buttons: message?.buttons,
-          },
-        ]);
-      } else if (times === 3) {
-        setMessages([
-          ..._messages,
-          {
-            from: "English BOT",
-            text: after_retry[
-              Math.floor(Math.random() * (after_retry.length - 1))
+            text: feedbackRight[
+              Math.floor(Math.random() * (feedbackRight.length - 1))
             ],
-            type: message?.type,
-            buttons: message?.buttons,
-          },
-        ]);
-      } else {
-        setTimes(0);
-        const result = botMsg.message.buttons.find(
-          (btn) => btn.correct === true
-        )?.title;
-        setMessages([
-          ..._messages,
-          { from: "Me", text: message.title },
-          {
-            from: "English BOT",
-            text: `
-                ${feedbackCorrection[
-                  Math.floor(Math.random() * (feedbackCorrection.length - 1))
-                ].replace("{ANSWER}", `<strong>${result}</strong>`)}
-                `,
             type: message?.type,
             buttons: message?.buttons,
           },
@@ -371,34 +268,81 @@ const ThirdBot = ({ setActive }) => {
         } else {
           socket.emit("getEndQuestion", {});
         }
+      } else {
+        setTimes(times + 1);
+        setTyping(false);
+        if (times >= 0 && times < 3) {
+          setMessages([
+            ..._messages,
+            {
+              from: "English BOT",
+              text: retry[Math.floor(Math.random() * (retry.length - 1))],
+              type: message?.type,
+              buttons: message?.buttons,
+            },
+          ]);
+        } else if (times === 3) {
+          setMessages([
+            ..._messages,
+            {
+              from: "English BOT",
+              text: after_retry[
+                Math.floor(Math.random() * (after_retry.length - 1))
+              ],
+              type: message?.type,
+              buttons: message?.buttons,
+            },
+          ]);
+        } else {
+          setTimes(0);
+          const result = botMsg.message.buttons.find(
+            (btn) => btn.correct === true
+          )?.title;
+          setMessages([
+            ..._messages,
+            { from: "Me", text: message.title },
+            {
+              from: "English BOT",
+              text: `
+                ${feedbackCorrection[
+                  Math.floor(Math.random() * (feedbackCorrection.length - 1))
+                ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+                `,
+              type: message?.type,
+              buttons: message?.buttons,
+            },
+          ]);
+          if (!botMsg.last) {
+            socket.emit("getModelQuestion", { questionNo, modelNo });
+          } else {
+            socket.emit("getEndQuestion", {});
+          }
+        }
       }
-    }
-    // }, 1000);
+    }, 1000);
   };
 
   return (
-    <>
-      <Content>
-        <StyledMessages ref={ref}>
-          {messages.map(({ from, text, type, buttons }, index) => (
-            <>
-              {from === "English BOT" ? (
-                <StyledBotDiv key={cuid()}>
-                  <img src={botIcon} alt=" " />
+    <StyledMessages ref={ref}>
+      {messages.map(({ from, text, type, buttons }, index) => (
+        <>
+          {from === "English BOT" ? (
+            <StyledBotDiv key={cuid()}>
+              <img src={botIcon} alt=" " />
 
-                  {type === "@message-type/button" ? (
-                    <MessageWithButton
-                      buttons={buttons}
-                      text={text}
-                      setMessages={setMessages}
-                      messages={messages}
-                      socket={socket}
-                      onBtnClick={onBtnClick}
-                    />
-                  ) : (
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: `
+              {type === "@message-type/button" ? (
+                <MessageWithButton
+                  buttons={buttons}
+                  text={text}
+                  setMessages={setMessages}
+                  messages={messages}
+                  socket={socket}
+                  onBtnClick={onBtnClick}
+                />
+              ) : (
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: `
                     <style>
                     strong{
                       color: #74eaf4;
@@ -406,36 +350,18 @@ const ThirdBot = ({ setActive }) => {
                     </style>
                     <div>${text}</div>
                     `,
-                      }}
-                    ></span>
-                  )}
-                </StyledBotDiv>
-              ) : (
-                <StyledMeDiv key={index}>
-                  <span>{text}</span>
-                </StyledMeDiv>
+                  }}
+                ></span>
               )}
-            </>
-          ))}
-        </StyledMessages>
-        {typing && <Typing />}
-        <StyledForm onSubmit={(e) => sendMsgSubmit(e)}>
-          <input
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                setMsg({ text: e.target.value });
-                e.target.value = "";
-              }
-            }}
-            type="text"
-            placeholder="send a message..."
-          />
-          <button type="submit">
-            <img src={send} alt="" />
-          </button>
-        </StyledForm>
-      </Content>
-    </>
+            </StyledBotDiv>
+          ) : (
+            <StyledMeDiv key={index}>
+              <span>{text}</span>
+            </StyledMeDiv>
+          )}
+        </>
+      ))}
+    </StyledMessages>
   );
 };
 

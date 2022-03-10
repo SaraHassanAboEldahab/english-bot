@@ -1,46 +1,30 @@
-import React, { useState, useEffect, useRef } from "react";
-import send from "../../images/send.png";
+import React, { useEffect, useRef } from "react";
 import botIcon from "../../images/bot-icon.png";
-import Typing from "../Typing";
-import MessageWithButton from "../MessageWithButton";
+import MessageWithButton from "../shared/MessageWithButton";
 import cuid from "cuid";
+import { StyledMessages, StyledBotDiv, StyledMeDiv } from "../shared/styles";
 import {
-  Content,
-  StyledForm,
-  StyledMessages,
-  StyledBotDiv,
-  StyledMeDiv,
-} from "./styles";
-import { socket, feedbackRight, endMessages, feedback_wrong } from "./const";
+  socket,
+  feedbackCorrection,
+  feedbackRight,
+  endMessages,
+} from "../shared/const";
 
-const SecondBot = ({ setActive }) => {
+const MessagesContainer = ({
+  questionNo,
+  currentQuestionType,
+  botMsg,
+  modelNo,
+  messages,
+  setTyping,
+  setQuestionNo,
+  setMessages,
+  setBotMsg,
+  setModelNo,
+  setCurrentQuestionType,
+}) => {
   const ref = useRef();
 
-  const [questionNo, setQuestionNo] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.questionNo || 0
-  );
-  const [modelNo, setModelNo] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.modelNo ??
-      (JSON.parse(localStorage.getItem("doneBefore2"))?.flag
-        ? Math.floor(Math.random() * 3)
-        : 0)
-  );
-
-  const [messages, setMessages] = useState(
-    JSON.parse(localStorage.getItem("messages2"))?.messages || []
-  );
-
-  const [msg, setMsg] = useState({ text: "" });
-
-  const [typing, setTyping] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.typing ?? true
-  );
-  const [botMsg, setBotMsg] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.botMsg || {}
-  );
-  const [currentQuestionType, setCurrentQuestionType] = useState(
-    JSON.parse(localStorage.getItem("bot2"))?.currentQuestionType || "intro"
-  );
   const scrollToBottom = () => {
     ref?.current?.addEventListener("DOMNodeInserted", (event) => {
       const { currentTarget: target } = event;
@@ -49,20 +33,7 @@ const SecondBot = ({ setActive }) => {
   };
 
   useEffect(() => {
-    localStorage.setItem(
-      "bot2",
-      JSON.stringify({
-        questionNo,
-        currentQuestionType,
-        botMsg,
-        typing,
-        modelNo,
-      })
-    );
-  }, [questionNo, currentQuestionType, botMsg, typing, modelNo]);
-
-  useEffect(() => {
-    localStorage.setItem("messages2", JSON.stringify({ messages }));
+    localStorage.setItem("messages1", JSON.stringify({ messages }));
     if (messages?.[messages.length - 1]?.from === "English BOT") {
       const audio = new Audio(
         "https://english-bot-test.herokuapp.com/assets/elegant-notification-sound.mp3"
@@ -73,7 +44,6 @@ const SecondBot = ({ setActive }) => {
   }, [messages]);
 
   useEffect(() => {
-    setActive(true);
     if (messages.length === 0) {
       setTimeout(() => {
         socket.emit("getIntroQuestion", { questionNo });
@@ -117,15 +87,11 @@ const SecondBot = ({ setActive }) => {
             ...messages,
             {
               from: "English BOT",
-              text: feedback_wrong[
-                Math.floor(Math.random() * (feedback_wrong.length - 1))
-              ],
-              type: message?.type,
-              buttons: message?.buttons,
-            },
-            {
-              from: "English BOT",
-              text: `the right answer is <strong>${result}</strong>`,
+              text: `
+              ${feedbackCorrection[
+                Math.floor(Math.random() * (feedbackCorrection.length - 1))
+              ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+              `,
               type: message?.type,
               buttons: message?.buttons,
             },
@@ -178,18 +144,18 @@ const SecondBot = ({ setActive }) => {
         setQuestionNo(questionNo + 1);
       } else {
         if (
-          !JSON.parse(localStorage.getItem("doneBefore2"))?.flag &&
+          !JSON.parse(localStorage.getItem("doneBefore1"))?.flag &&
           modelNo < 2
         ) {
           setModelNo(modelNo + 1);
           setBotMsg({ ...botMsg, last: false });
           setQuestionNo(0);
         } else if (
-          !JSON.parse(localStorage.getItem("doneBefore2"))?.flag &&
+          !JSON.parse(localStorage.getItem("doneBefore1"))?.flag &&
           modelNo === 2 &&
           botMsg.last
         ) {
-          localStorage.setItem("doneBefore2", JSON.stringify({ flag: true }));
+          localStorage.setItem("doneBefore1", JSON.stringify({ flag: true }));
           setMessages([
             ...messages,
             {
@@ -217,43 +183,20 @@ const SecondBot = ({ setActive }) => {
 
       setTyping(false);
     });
-  }, [messages, questionNo, currentQuestionType, modelNo, botMsg.last, botMsg]);
-
-  const sendMsgSubmit = (e) => {
-    e.preventDefault();
-    setMessages([...messages, { from: "Me", text: msg.text }]);
-    setTyping(true);
-    if (
-      botMsg?.message?.response?.length > 0 &&
-      currentQuestionType === "intro"
-    ) {
-      setTimeout(() => {
-        const response =
-          botMsg.message.response[
-            Math.floor(Math.random() * (botMsg.message.response.length - 1))
-          ];
-        setMessages([
-          ...messages,
-          { from: "Me", text: msg.text },
-          { from: "English BOT", text: response },
-        ]);
-        if (!botMsg.last) {
-          setTyping(true);
-          socket.emit("getIntroQuestion", { questionNo });
-        } else {
-          setCurrentQuestionType("model");
-          setQuestionNo(0);
-          setBotMsg({});
-          socket.emit("getModelQuestion", { questionNo, modelNo });
-        }
-      }, 1000);
-    }
-    if (currentQuestionType === "model") {
-      socket.emit("checkGrammer", { ...msg, _id: botMsg.message._id });
-      setBotMsg({});
-    }
-    setMsg({ text: "" });
-  };
+  }, [
+    messages,
+    questionNo,
+    currentQuestionType,
+    modelNo,
+    botMsg.last,
+    botMsg,
+    setMessages,
+    setTyping,
+    setBotMsg,
+    setQuestionNo,
+    setModelNo,
+    setCurrentQuestionType,
+  ]);
 
   const onBtnClick = (message) => {
     setMessages([...messages, { from: "Me", text: message.title }]);
@@ -282,15 +225,11 @@ const SecondBot = ({ setActive }) => {
           { from: "Me", text: message.title },
           {
             from: "English BOT",
-            text: feedback_wrong[
-              Math.floor(Math.random() * (feedback_wrong.length - 1))
-            ],
-            type: message?.type,
-            buttons: message?.buttons,
-          },
-          {
-            from: "English BOT",
-            text: `the right answer is <strong>${result}</strong>`,
+            text: `
+            ${feedbackCorrection[
+              Math.floor(Math.random() * (feedbackCorrection.length - 1))
+            ].replace("{ANSWER}", `<strong>${result}</strong>`)}
+            `,
             type: message?.type,
             buttons: message?.buttons,
           },
@@ -301,32 +240,27 @@ const SecondBot = ({ setActive }) => {
       } else {
         socket.emit("getEndQuestion", {});
       }
-    }, 1000);
+    }, 2000);
   };
 
   return (
-    <>
-      <Content>
-        <StyledMessages ref={ref}>
-          {messages.map(({ from, text, type, buttons }, index) => (
-            <>
-              {from === "English BOT" ? (
-                <StyledBotDiv key={cuid()}>
-                  <img src={botIcon} alt=" " />
+    <StyledMessages ref={ref}>
+      {messages.map(({ from, text, type, buttons }, index) => (
+        <>
+          {from === "English BOT" ? (
+            <StyledBotDiv key={cuid()}>
+              <img src={botIcon} alt=" " />
 
-                  {type === "@message-type/button" ? (
-                    <MessageWithButton
-                      buttons={buttons}
-                      text={text}
-                      setMessages={setMessages}
-                      messages={messages}
-                      socket={socket}
-                      onBtnClick={onBtnClick}
-                    />
-                  ) : (
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: `
+              {type === "@message-type/button" ? (
+                <MessageWithButton
+                  buttons={buttons}
+                  text={text}
+                  onBtnClick={onBtnClick}
+                />
+              ) : (
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: `
                     <style>
                     strong{
                       color: #74eaf4;
@@ -334,37 +268,19 @@ const SecondBot = ({ setActive }) => {
                     </style>
                     <div>${text}</div>
                     `,
-                      }}
-                    ></span>
-                  )}
-                </StyledBotDiv>
-              ) : (
-                <StyledMeDiv key={index}>
-                  <span>{text}</span>
-                </StyledMeDiv>
+                  }}
+                ></span>
               )}
-            </>
-          ))}
-        </StyledMessages>
-        {typing && <Typing />}
-        <StyledForm onSubmit={(e) => sendMsgSubmit(e)}>
-          <input
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                setMsg({ text: e.target.value });
-                e.target.value = "";
-              }
-            }}
-            type="text"
-            placeholder="send a message..."
-          />
-          <button type="submit">
-            <img src={send} alt="" />
-          </button>
-        </StyledForm>
-      </Content>
-    </>
+            </StyledBotDiv>
+          ) : (
+            <StyledMeDiv key={index}>
+              <span>{text}</span>
+            </StyledMeDiv>
+          )}
+        </>
+      ))}
+    </StyledMessages>
   );
 };
 
-export default SecondBot;
+export default MessagesContainer;
